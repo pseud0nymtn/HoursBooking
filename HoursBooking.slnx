@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="HoursBooking.App/HoursBooking.App.csproj" />
+  <Project Path="HoursBooking.Core/HoursBooking.Core.csproj" />
+  <Project Path="HoursBooking.IntegrationTests/HoursBooking.IntegrationTests.csproj" />
+  <Project Path="HoursBooking.Tests/HoursBooking.Tests.csproj" />
+</Solution>

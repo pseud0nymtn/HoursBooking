@@ -1,0 +1,65 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="HoursBooking.App.App"
+             xmlns:local="using:HoursBooking.App"
+             RequestedThemeVariant="Default">
+             <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+
+    <Application.DataTemplates>
+        <local:ViewLocator/>
+    </Application.DataTemplates>
+
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Light">
+                    <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#F4F7FA"/>
+                    <SolidColorBrush x:Key="WindowForegroundBrush" Color="#1A2732"/>
+
+                    <SolidColorBrush x:Key="HeaderBackgroundBrush" Color="#2A3D4D"/>
+                    <SolidColorBrush x:Key="HeaderForegroundBrush" Color="#F8FAFC"/>
+                    <SolidColorBrush x:Key="HeaderSecondaryForegroundBrush" Color="#D8E3EA"/>
+
+                    <SolidColorBrush x:Key="CardBackgroundBrush" Color="#FFFFFF"/>
+                    <SolidColorBrush x:Key="CardMutedBackgroundBrush" Color="#F5F8FB"/>
+
+                    <SolidColorBrush x:Key="MetricOneBrush" Color="#DCEBF6"/>
+                    <SolidColorBrush x:Key="MetricTwoBrush" Color="#E9F3DC"/>
+                    <SolidColorBrush x:Key="MetricThreeBrush" Color="#F4E7D8"/>
+
+                    <SolidColorBrush x:Key="SettingsCardOneBrush" Color="#EEF4EE"/>
+                    <SolidColorBrush x:Key="SettingsCardTwoBrush" Color="#F2EEF8"/>
+                    <SolidColorBrush x:Key="SettingsCardThreeBrush" Color="#F8EFEA"/>
+
+                    <SolidColorBrush x:Key="SubtleTextBrush" Color="#455664"/>
+                </ResourceDictionary>
+
+                <ResourceDictionary x:Key="Dark">
+                    <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#111A22"/>
+                    <SolidColorBrush x:Key="WindowForegroundBrush" Color="#EAF1F8"/>
+
+                    <SolidColorBrush x:Key="HeaderBackgroundBrush" Color="#1B2B38"/>
+                    <SolidColorBrush x:Key="HeaderForegroundBrush" Color="#F0F6FB"/>
+                    <SolidColorBrush x:Key="HeaderSecondaryForegroundBrush" Color="#B7CBD9"/>
+
+                    <SolidColorBrush x:Key="CardBackgroundBrush" Color="#182430"/>
+                    <SolidColorBrush x:Key="CardMutedBackgroundBrush" Color="#1D2C39"/>
+
+                    <SolidColorBrush x:Key="MetricOneBrush" Color="#21364A"/>
+                    <SolidColorBrush x:Key="MetricTwoBrush" Color="#244033"/>
+                    <SolidColorBrush x:Key="MetricThreeBrush" Color="#463625"/>
+
+                    <SolidColorBrush x:Key="SettingsCardOneBrush" Color="#20342A"/>
+                    <SolidColorBrush x:Key="SettingsCardTwoBrush" Color="#2A223F"/>
+                    <SolidColorBrush x:Key="SettingsCardThreeBrush" Color="#3D2D27"/>
+
+                    <SolidColorBrush x:Key="SubtleTextBrush" Color="#C2D0DB"/>
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+  
+    <Application.Styles>
+        <FluentTheme />
+    </Application.Styles>
+</Application>
