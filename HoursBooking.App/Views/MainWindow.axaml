@@ -8,8 +8,6 @@
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/avalonia-logo.ico"
     Title="Arbeitszeit buchen"
-    MinWidth="980"
-    MinHeight="700"
     Background="{DynamicResource WindowBackgroundBrush}"
     Foreground="{DynamicResource WindowForegroundBrush}">
 
@@ -19,7 +17,9 @@
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
-    <Grid RowDefinitions="Auto,*" Margin="20">
+    <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                  VerticalScrollBarVisibility="Auto">
+        <Grid RowDefinitions="Auto,*" Margin="20">
         <Border Grid.Row="0"
                 CornerRadius="14"
                 Padding="18"
@@ -257,5 +257,6 @@
             </ScrollViewer>
         </Grid>
     </Grid>
+    </ScrollViewer>
 
 </Window>
