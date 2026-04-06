@@ -113,6 +113,12 @@ public partial class MainWindowViewModel : ViewModelBase
     private bool showWindowHeader = true;
 
     [ObservableProperty]
+    private bool showHeaderDate = true;
+
+    [ObservableProperty]
+    private bool showHeaderClock = true;
+
+    [ObservableProperty]
     private bool showSettingsTab = true;
 
     [ObservableProperty]
@@ -126,6 +132,9 @@ public partial class MainWindowViewModel : ViewModelBase
 
     [ObservableProperty]
     private bool showClockInSummary;
+
+    [ObservableProperty]
+    private bool showBookingTitle = true;
 
     [ObservableProperty]
     private string activeClockInText = "Nicht eingestempelt";
@@ -337,9 +346,9 @@ public partial class MainWindowViewModel : ViewModelBase
         GrossWorkedText = FormatDuration(gross);
         DeductedBreakText = FormatDuration(deductedBreak);
         NetWorkedText = FormatDuration(net);
-        ActiveClockInText = _activeSegment is null
-            ? "Nicht eingestempelt"
-            : _activeSegment.Start.ToString("HH:mm");
+        ActiveClockInText = _segments.Count == 0
+            ? "Noch kein Start"
+            : _segments.MinBy(segment => segment.Start)?.Start.ToString("HH:mm") ?? "Noch kein Start";
 
         var targetReachedAt = _calculator.GetTargetReachedAt(_segments, settings.BreakRules, settings.DesiredWorkHours, CurrentTime, settings.CountStampedOutTimeAsBreak);
         if (settings.DesiredWorkHours <= 0)
@@ -549,11 +558,14 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public void UpdateLayoutMode(double windowWidth)
     {
-        ShowWindowHeader = windowWidth >= 700;
-        ShowSettingsTab = windowWidth >= 1024;
-        ShowSegmentsSection = windowWidth >= 860;
-        ShowDetailedMetrics = windowWidth >= 700;
-        ShowAlertPanel = windowWidth >= 860;
-        ShowClockInSummary = windowWidth < 700;
+        ShowSettingsTab = windowWidth >= 1120;
+        ShowSegmentsSection = windowWidth >= 900;
+        ShowDetailedMetrics = windowWidth >= 760;
+        ShowAlertPanel = windowWidth >= 840;
+        ShowClockInSummary = windowWidth < 760;
+        ShowWindowHeader = windowWidth >= 680;
+        ShowHeaderDate = windowWidth >= 860;
+        ShowHeaderClock = windowWidth >= 980;
+        ShowBookingTitle = windowWidth >= 620;
     }
 }
