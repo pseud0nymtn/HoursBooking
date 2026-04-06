@@ -13,18 +13,24 @@ namespace HoursBooking.App.ViewModels;
 public partial class MainWindowViewModel : ViewModelBase
 {
     private readonly BookingCalculator _calculator;
+    private readonly LocalizationService _localizer;
     private readonly ISettingsStore _settingsStore;
     private readonly IThemeService _themeService;
     private readonly DispatcherTimer _timer;
     private readonly List<WorkSegment> _segments = [];
+    private readonly LanguageOption _systemLanguageOption;
     private WorkSegment? _activeSegment;
     private bool _isInitializing;
+    private object[] _segmentEditMessageArguments = [];
+    private string _segmentEditMessageKey = "SegmentEdit.SelectToAdjust";
 
-    public MainWindowViewModel(BookingCalculator calculator, ISettingsStore settingsStore, IThemeService themeService)
+    public MainWindowViewModel(BookingCalculator calculator, ISettingsStore settingsStore, IThemeService themeService, LocalizationService localizationService)
     {
         _calculator = calculator;
+        _localizer = localizationService;
         _settingsStore = settingsStore;
         _themeService = themeService;
+        _localizer.LanguageChanged += OnLanguageChanged;
 
         CurrentTime = DateTimeOffset.Now;
 
@@ -40,15 +46,48 @@ public partial class MainWindowViewModel : ViewModelBase
         _timer.Start();
 
         BreakRules = new ObservableCollection<BreakRuleViewModel>();
+        LanguageOptions = new ObservableCollection<LanguageOption>();
         Segments = new ObservableCollection<WorkSegmentItemViewModel>();
-        ThemeModes = Enum.GetValues<ThemeMode>();
+        ThemeOptions = new ObservableCollection<LocalizedOption<ThemeMode>>
+        {
+            new() { Value = ThemeMode.System },
+            new() { Value = ThemeMode.Light },
+            new() { Value = ThemeMode.Dark }
+        };
+        TrayDisplayOptions = new ObservableCollection<LocalizedOption<TrayDisplayMode>>
+        {
+            new() { Value = TrayDisplayMode.Icon },
+            new() { Value = TrayDisplayMode.NetWorkedTime }
+        };
+
+        _systemLanguageOption = new LanguageOption { Code = string.Empty, DisplayName = string.Empty };
+        LanguageOptions.Add(_systemLanguageOption);
+        foreach (var language in _localizer.AvailableLanguages)
+        {
+            LanguageOptions.Add(new LanguageOption
+            {
+                Code = language.Code,
+                DisplayName = language.DisplayName
+            });
+        }
+
+        RefreshLocalizedOptionDisplayNames();
+        AlertMessage = _localizer["Alert.NoWarning"];
+        DesiredEndTimeText = _localizer["DesiredEnd.NotStarted"];
+        SegmentEditMessage = _localizer["SegmentEdit.SelectToAdjust"];
     }
 
     public ObservableCollection<BreakRuleViewModel> BreakRules { get; }
 
+    public ObservableCollection<LanguageOption> LanguageOptions { get; }
+
     public ObservableCollection<WorkSegmentItemViewModel> Segments { get; }
 
-    public IReadOnlyList<ThemeMode> ThemeModes { get; }
+    public ObservableCollection<LocalizedOption<ThemeMode>> ThemeOptions { get; }
+
+    public ObservableCollection<LocalizedOption<TrayDisplayMode>> TrayDisplayOptions { get; }
+
+    public LocalizationService Localizer => _localizer;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CurrentDayLabel))]
@@ -65,7 +104,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private AlertLevel alertLevel;
 
     [ObservableProperty]
-    private string alertMessage = "Keine Warnung.";
+    private string alertMessage = string.Empty;
 
     [ObservableProperty]
     private IBrush alertBackground = new SolidColorBrush(Color.Parse("#EEF2F6"));
@@ -104,10 +143,28 @@ public partial class MainWindowViewModel : ViewModelBase
     private ThemeMode selectedThemeMode;
 
     [ObservableProperty]
-    private string desiredEndTimeText = "Noch nicht gestartet";
+    private LocalizedOption<ThemeMode>? selectedThemeOption;
 
     [ObservableProperty]
-    private string segmentEditMessage = "Arbeitsabschnitt auswaehlen, um Zeiten anzupassen.";
+    private bool minimizeToTrayOnClose;
+
+    [ObservableProperty]
+    private TrayDisplayMode trayDisplayMode;
+
+    [ObservableProperty]
+    private LocalizedOption<TrayDisplayMode>? selectedTrayDisplayOption;
+
+    [ObservableProperty]
+    private LanguageOption? selectedLanguageOption;
+
+    [ObservableProperty]
+    private bool hasSeenTrayMinimizeHint;
+
+    [ObservableProperty]
+    private string desiredEndTimeText = string.Empty;
+
+    [ObservableProperty]
+    private string segmentEditMessage = string.Empty;
 
     [ObservableProperty]
     private bool showWindowHeader = true;
@@ -149,13 +206,95 @@ public partial class MainWindowViewModel : ViewModelBase
     private bool showSegmentCardLayout;
 
     [ObservableProperty]
-    private string activeClockInText = "Nicht eingestempelt";
+    private string activeClockInText = string.Empty;
 
-    public string CurrentDayLabel => CurrentTime.ToString("dddd, dd.MM.yyyy");
+    public string CurrentDayLabel => CurrentTime.ToString("dddd, dd.MM.yyyy", _localizer.CurrentCulture);
 
     public string CurrentTimeLabel => CurrentTime.ToString("HH:mm:ss");
 
     public bool HasAlert => AlertLevel != AlertLevel.None;
+
+    public string WindowTitle => _localizer["Window.Title"];
+
+    public string HeaderTitle => _localizer["Header.Title"];
+
+    public string BookingTabHeader => _localizer["Tabs.Booking"];
+
+    public string SettingsTabHeader => _localizer["Tabs.Settings"];
+
+    public string CompactStartLabel => _localizer["Compact.Start"];
+
+    public string CompactNetLabel => _localizer["Compact.Net"];
+
+    public string ClockSectionTitle => _localizer["ClockSection.Title"];
+
+    public string ClockInText => _localizer["Actions.ClockIn"];
+
+    public string ClockOutText => _localizer["Actions.ClockOut"];
+
+    public string EditText => _localizer["Actions.Edit"];
+
+    public string ApplyText => _localizer["Actions.Apply"];
+
+    public string CancelText => _localizer["Actions.Cancel"];
+
+    public string RemoveText => _localizer["Actions.Remove"];
+
+    public string AddRuleText => _localizer["Actions.AddRule"];
+
+    public string SummaryClockedInLabel => _localizer["Summary.ClockedIn"];
+
+    public string SummaryNetLabel => _localizer["Summary.Net"];
+
+    public string GrossLabel => _localizer["Metrics.Gross"];
+
+    public string BreakDeductionLabel => _localizer["Metrics.BreakDeduction"];
+
+    public string NetLabel => _localizer["Metrics.Net"];
+
+    public string WorkSegmentsTitle => _localizer["Sections.WorkSegments"];
+
+    public string StartLabel => _localizer["Grid.Start"];
+
+    public string EndLabel => _localizer["Grid.End"];
+
+    public string DurationLabel => _localizer["Grid.Duration"];
+
+    public string ActionLabel => _localizer["Grid.Action"];
+
+    public string CardDurationLabel => _localizer["Cards.Duration"];
+
+    public string DisplaySettingsTitle => _localizer["Settings.Display"];
+
+    public string ThemeLabel => _localizer["Settings.Theme"];
+
+    public string LanguageLabel => _localizer["Settings.Language"];
+
+    public string MinimizeToTrayOnCloseLabel => _localizer["Settings.MinimizeToTrayOnClose"];
+
+    public string TrayDisplayLabel => _localizer["Settings.TrayDisplay"];
+
+    public string TraySupportHintText => _localizer["Settings.TraySupportHint"];
+
+    public string AlertLevelsTitle => _localizer["Settings.AlertLevels"];
+
+    public string MaxWorkHoursLabel => _localizer["Settings.MaxWorkHours"];
+
+    public string DesiredWorkHoursLabel => _localizer["Settings.DesiredWorkHours"];
+
+    public string CountStampedOutBreakLabel => _localizer["Settings.CountStampedOutBreak"];
+
+    public string InfoThresholdLabel => _localizer["Settings.InfoThreshold"];
+
+    public string WarningThresholdLabel => _localizer["Settings.WarningThreshold"];
+
+    public string ErrorThresholdLabel => _localizer["Settings.ErrorThreshold"];
+
+    public string BreakRulesTitle => _localizer["Settings.BreakRules"];
+
+    public string BreakRulesFormatText => _localizer["Settings.BreakRulesFormat"];
+
+    public string SaveSettingsText => _localizer["Settings.SaveNow"];
 
     public async Task InitializeAsync()
     {
@@ -164,7 +303,14 @@ public partial class MainWindowViewModel : ViewModelBase
         var document = await _settingsStore.LoadAsync();
         var settings = document.BookingSettings;
 
+        _localizer.SetLanguageCode(document.LanguageCode);
         SelectedThemeMode = document.ThemeMode;
+        SelectedThemeOption = ThemeOptions.FirstOrDefault(option => option.Value == SelectedThemeMode);
+        MinimizeToTrayOnClose = document.MinimizeToTrayOnClose;
+        TrayDisplayMode = TrayDisplayMode.Icon;
+        HasSeenTrayMinimizeHint = document.HasSeenTrayMinimizeHint;
+        SelectedLanguageOption = LanguageOptions.FirstOrDefault(option => option.Code == document.LanguageCode) ?? _systemLanguageOption;
+        SelectedTrayDisplayOption = TrayDisplayOptions.First(option => option.Value == TrayDisplayMode);
         MaxWorkHours = settings.MaxWorkHours;
         DesiredWorkHours = settings.DesiredWorkHours;
         CountStampedOutTimeAsBreak = settings.CountStampedOutTimeAsBreak;
@@ -262,7 +408,24 @@ public partial class MainWindowViewModel : ViewModelBase
 
     partial void OnSelectedThemeModeChanged(ThemeMode value)
     {
+        SelectedThemeOption = ThemeOptions.FirstOrDefault(option => option.Value == value);
         _themeService.ApplyTheme(value);
+        if (!_isInitializing)
+        {
+            _ = SaveSettingsAsync();
+        }
+    }
+
+    partial void OnSelectedThemeOptionChanged(LocalizedOption<ThemeMode>? value)
+    {
+        if (value is not null && value.Value != SelectedThemeMode)
+        {
+            SelectedThemeMode = value.Value;
+        }
+    }
+
+    partial void OnMinimizeToTrayOnCloseChanged(bool value)
+    {
         if (!_isInitializing)
         {
             _ = SaveSettingsAsync();
@@ -328,6 +491,10 @@ public partial class MainWindowViewModel : ViewModelBase
         return new AppSettingsDocument
         {
             ThemeMode = SelectedThemeMode,
+            LanguageCode = SelectedLanguageOption?.Code ?? string.Empty,
+            MinimizeToTrayOnClose = MinimizeToTrayOnClose,
+            TrayDisplayMode = TrayDisplayMode.Icon,
+            HasSeenTrayMinimizeHint = HasSeenTrayMinimizeHint,
             BookingSettings = new BookingSettings
             {
                 MaxWorkHours = Math.Max(0.1, MaxWorkHours),
@@ -361,28 +528,28 @@ public partial class MainWindowViewModel : ViewModelBase
         ActiveClockInText = _activeSegment is not null
             ? _activeSegment.Start.ToString("HH:mm")
             : _segments.Count == 0
-                ? "Noch kein Start"
-                : _segments.MinBy(segment => segment.Start)?.Start.ToString("HH:mm") ?? "Noch kein Start";
+                ? _localizer["ClockStatus.NotStarted"]
+                : _segments.MinBy(segment => segment.Start)?.Start.ToString("HH:mm") ?? _localizer["ClockStatus.NotStarted"];
 
         var targetReachedAt = _calculator.GetTargetReachedAt(_segments, settings.BreakRules, settings.DesiredWorkHours, CurrentTime, settings.CountStampedOutTimeAsBreak);
         if (settings.DesiredWorkHours <= 0)
         {
-            DesiredEndTimeText = "Wunscharbeitszeit deaktiviert";
+            DesiredEndTimeText = _localizer["DesiredEnd.Disabled"];
         }
         else if (net >= TimeSpan.FromHours(settings.DesiredWorkHours))
         {
-            DesiredEndTimeText = $"Wunscharbeitszeit bereits erreicht ({targetReachedAt:HH:mm})";
+            DesiredEndTimeText = _localizer.Format("DesiredEnd.AlreadyReached", targetReachedAt);
         }
         else
         {
-            DesiredEndTimeText = $"Wunscharbeitszeit erreicht um ca. {targetReachedAt:HH:mm}";
+            DesiredEndTimeText = _localizer.Format("DesiredEnd.ReachesAt", targetReachedAt);
         }
 
         RefreshSegments();
 
         var alert = _calculator.EvaluateAlert(net, settings);
         AlertLevel = alert.Level;
-        AlertMessage = alert.Message;
+        AlertMessage = _localizer.Format(alert.MessageKey, alert.FormatArguments);
         ApplyAlertStyle(alert.Level);
     }
 
@@ -413,7 +580,7 @@ public partial class MainWindowViewModel : ViewModelBase
             if (!row.IsEditing)
             {
                 row.Start = segment.Start.ToString("HH:mm");
-                row.End = segment.End.HasValue ? segment.End.Value.ToString("HH:mm") : "Laeuft";
+                row.End = segment.End.HasValue ? segment.End.Value.ToString("HH:mm") : _localizer["SegmentStatus.Running"];
             }
 
             row.Duration = FormatDuration(duration);
@@ -468,7 +635,7 @@ public partial class MainWindowViewModel : ViewModelBase
         item.EditableStartTime = item.Segment.Start.TimeOfDay;
         item.EditableEndTime = item.Segment.End?.TimeOfDay;
         item.IsEditing = true;
-        SegmentEditMessage = "Zeiten anpassen und uebernehmen.";
+        SetSegmentEditMessage("SegmentEdit.AdjustAndApply");
     }
 
     [RelayCommand]
@@ -483,10 +650,10 @@ public partial class MainWindowViewModel : ViewModelBase
         if (item.Segment is not null)
         {
             item.Start = item.Segment.Start.ToString("HH:mm");
-            item.End = item.Segment.End.HasValue ? item.Segment.End.Value.ToString("HH:mm") : "Laeuft";
+            item.End = item.Segment.End.HasValue ? item.Segment.End.Value.ToString("HH:mm") : _localizer["SegmentStatus.Running"];
         }
 
-        SegmentEditMessage = "Arbeitsabschnitt auswaehlen, um Zeiten anzupassen.";
+        SetSegmentEditMessage("SegmentEdit.SelectToAdjust");
     }
 
     [RelayCommand]
@@ -494,7 +661,7 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         if (item?.Segment is null)
         {
-            SegmentEditMessage = "Bitte zuerst einen Arbeitsabschnitt auswaehlen.";
+            SetSegmentEditMessage("SegmentEdit.SelectFirst");
             return;
         }
 
@@ -511,13 +678,13 @@ public partial class MainWindowViewModel : ViewModelBase
             updatedEnd = new DateTimeOffset(baseDate + endTime, editedSegment.Start.Offset);
             if (updatedEnd < updatedStart)
             {
-                SegmentEditMessage = "Endzeit darf nicht vor der Startzeit liegen.";
+                SetSegmentEditMessage("SegmentEdit.EndBeforeStart");
                 return;
             }
         }
         else if (editedSegment != _activeSegment)
         {
-            SegmentEditMessage = "Fuer abgeschlossene Abschnitte muss eine Endzeit gesetzt sein.";
+            SetSegmentEditMessage("SegmentEdit.CompletedNeedsEnd");
             return;
         }
 
@@ -528,7 +695,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
         if (overlapsExistingSegment)
         {
-            SegmentEditMessage = "Der bearbeitete Abschnitt ueberlappt mit einem anderen Arbeitsabschnitt.";
+            SetSegmentEditMessage("SegmentEdit.Overlap");
             return;
         }
 
@@ -537,7 +704,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
         _segments.Sort((left, right) => left.Start.CompareTo(right.Start));
         item.IsEditing = false;
-        SegmentEditMessage = "Arbeitsabschnitt aktualisiert.";
+        SetSegmentEditMessage("SegmentEdit.Updated");
         Recalculate();
         _ = SaveSettingsAsync();
     }
@@ -585,5 +752,132 @@ public partial class MainWindowViewModel : ViewModelBase
         ShowHeaderDate = windowWidth >= 820;
         ShowHeaderClock = windowWidth >= 1040;
         ShowBookingTitle = windowWidth >= 760;
+    }
+
+    partial void OnSelectedLanguageOptionChanged(LanguageOption? value)
+    {
+        _localizer.SetLanguageCode(value?.Code);
+        if (!_isInitializing)
+        {
+            _ = SaveSettingsAsync();
+        }
+    }
+
+    partial void OnTrayDisplayModeChanged(TrayDisplayMode value)
+    {
+        SelectedTrayDisplayOption = TrayDisplayOptions.FirstOrDefault(option => EqualityComparer<TrayDisplayMode>.Default.Equals(option.Value, value));
+        if (!_isInitializing)
+        {
+            _ = SaveSettingsAsync();
+        }
+    }
+
+    partial void OnSelectedTrayDisplayOptionChanged(LocalizedOption<TrayDisplayMode>? value)
+    {
+        if (value is not null && !EqualityComparer<TrayDisplayMode>.Default.Equals(TrayDisplayMode, value.Value))
+        {
+            TrayDisplayMode = value.Value;
+        }
+    }
+
+    public void MarkTrayMinimizeHintAsSeen()
+    {
+        if (HasSeenTrayMinimizeHint)
+        {
+            return;
+        }
+
+        HasSeenTrayMinimizeHint = true;
+        if (!_isInitializing)
+        {
+            _ = SaveSettingsAsync();
+        }
+    }
+
+    private void OnLanguageChanged(object? sender, EventArgs e)
+    {
+        RefreshLocalizedOptionDisplayNames();
+        RaiseLocalizedPropertyChanges();
+        SetSegmentEditMessage(_segmentEditMessageKey, _segmentEditMessageArguments);
+        Recalculate();
+    }
+
+    private void RefreshLocalizedOptionDisplayNames()
+    {
+        _systemLanguageOption.DisplayName = _localizer["Language.System"];
+
+        foreach (var option in ThemeOptions)
+        {
+            option.DisplayName = option.Value switch
+            {
+                ThemeMode.System => _localizer["Theme.System"],
+                ThemeMode.Light => _localizer["Theme.Light"],
+                ThemeMode.Dark => _localizer["Theme.Dark"],
+                _ => option.Value.ToString() ?? string.Empty
+            };
+        }
+
+        foreach (var option in TrayDisplayOptions)
+        {
+            option.DisplayName = option.Value switch
+            {
+                TrayDisplayMode.Icon => _localizer["TrayDisplay.Icon"],
+                TrayDisplayMode.NetWorkedTime => _localizer["TrayDisplay.NetWorkedTime"],
+                _ => option.Value.ToString() ?? string.Empty
+            };
+        }
+    }
+
+    private void RaiseLocalizedPropertyChanges()
+    {
+        OnPropertyChanged(nameof(WindowTitle));
+        OnPropertyChanged(nameof(HeaderTitle));
+        OnPropertyChanged(nameof(BookingTabHeader));
+        OnPropertyChanged(nameof(SettingsTabHeader));
+        OnPropertyChanged(nameof(CompactStartLabel));
+        OnPropertyChanged(nameof(CompactNetLabel));
+        OnPropertyChanged(nameof(ClockSectionTitle));
+        OnPropertyChanged(nameof(ClockInText));
+        OnPropertyChanged(nameof(ClockOutText));
+        OnPropertyChanged(nameof(EditText));
+        OnPropertyChanged(nameof(ApplyText));
+        OnPropertyChanged(nameof(CancelText));
+        OnPropertyChanged(nameof(RemoveText));
+        OnPropertyChanged(nameof(AddRuleText));
+        OnPropertyChanged(nameof(SummaryClockedInLabel));
+        OnPropertyChanged(nameof(SummaryNetLabel));
+        OnPropertyChanged(nameof(GrossLabel));
+        OnPropertyChanged(nameof(BreakDeductionLabel));
+        OnPropertyChanged(nameof(NetLabel));
+        OnPropertyChanged(nameof(WorkSegmentsTitle));
+        OnPropertyChanged(nameof(StartLabel));
+        OnPropertyChanged(nameof(EndLabel));
+        OnPropertyChanged(nameof(DurationLabel));
+        OnPropertyChanged(nameof(ActionLabel));
+        OnPropertyChanged(nameof(CardDurationLabel));
+        OnPropertyChanged(nameof(DisplaySettingsTitle));
+        OnPropertyChanged(nameof(ThemeLabel));
+        OnPropertyChanged(nameof(LanguageLabel));
+        OnPropertyChanged(nameof(MinimizeToTrayOnCloseLabel));
+        OnPropertyChanged(nameof(TrayDisplayLabel));
+        OnPropertyChanged(nameof(TraySupportHintText));
+        OnPropertyChanged(nameof(AlertLevelsTitle));
+        OnPropertyChanged(nameof(MaxWorkHoursLabel));
+        OnPropertyChanged(nameof(DesiredWorkHoursLabel));
+        OnPropertyChanged(nameof(CountStampedOutBreakLabel));
+        OnPropertyChanged(nameof(InfoThresholdLabel));
+        OnPropertyChanged(nameof(WarningThresholdLabel));
+        OnPropertyChanged(nameof(ErrorThresholdLabel));
+        OnPropertyChanged(nameof(BreakRulesTitle));
+        OnPropertyChanged(nameof(BreakRulesFormatText));
+        OnPropertyChanged(nameof(SaveSettingsText));
+        OnPropertyChanged(nameof(CurrentDayLabel));
+    }
+
+    private void SetSegmentEditMessage(string key, params object[] arguments)
+    {
+        _segmentEditMessageKey = key;
+        _segmentEditMessageArguments = arguments;
+        SegmentEditMessage = _localizer.Format(key, arguments);
     }
 }
