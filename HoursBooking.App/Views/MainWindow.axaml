@@ -66,72 +66,75 @@
             <TabItem Header="Buchung">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Spacing="14" Margin="0,10,0,0">
-                        <Border CornerRadius="28"
-                                Padding="18"
+                        <Border CornerRadius="22"
+                                Padding="12"
                                 Background="{DynamicResource CardBackgroundBrush}"
                                 BorderBrush="{DynamicResource HairlineBrush}"
                                 BorderThickness="1"
-                                BoxShadow="0 14 36 0 #12000000"
+                                BoxShadow="0 10 24 0 #12000000"
                                 IsVisible="{Binding ShowMinimalClockMode}">
-                            <StackPanel Spacing="14">
-                                <TextBlock Text="Stempeluhr"
-                                           FontSize="20"
-                                           FontWeight="SemiBold"
-                                           HorizontalAlignment="Center"/>
-
-                                <Border CornerRadius="20"
-                                        Padding="14"
-                                        Background="{DynamicResource SecondarySurfaceBrush}">
-                                    <StackPanel Spacing="10">
-                                        <Border HorizontalAlignment="Center"
-                                                Padding="10,5"
-                                                CornerRadius="999"
-                                                Background="{DynamicResource CardBackgroundBrush}"
-                                                BorderBrush="{DynamicResource HairlineBrush}"
-                                                BorderThickness="1">
-                                            <TextBlock Text="Letzter Start"
-                                                       FontSize="11"
-                                                       FontWeight="SemiBold"
-                                                       Foreground="{DynamicResource SubtleTextBrush}"/>
-                                        </Border>
-                                        <StackPanel Spacing="0" HorizontalAlignment="Center">
-                                            <TextBlock Text="{Binding ActiveClockInText}"
-                                                       FontSize="30"
-                                                       FontWeight="Bold"
-                                                       HorizontalAlignment="Center"/>
-                                            <TextBlock Text="Netto heute"
-                                                       FontSize="11"
-                                                       Foreground="{DynamicResource SubtleTextBrush}"
-                                                       HorizontalAlignment="Center"/>
-                                        </StackPanel>
-
-                                        <Border CornerRadius="18"
-                                                Padding="14"
-                                                Background="{DynamicResource MetricThreeBrush}"
-                                                BorderBrush="{DynamicResource HairlineBrush}"
-                                                BorderThickness="1">
-                                            <StackPanel Spacing="0" HorizontalAlignment="Center">
-                                                <TextBlock Text="{Binding NetWorkedText}"
-                                                           FontSize="34"
-                                                           FontWeight="Bold"
-                                                           HorizontalAlignment="Center"/>
-                                            </StackPanel>
-                                        </Border>
-                                    </StackPanel>
-                                </Border>
-
-                                <StackPanel Spacing="8">
-                                    <Button Content="Einstempeln"
-                                            Height="42"
-                                            Background="{DynamicResource AccentBrush}"
-                                            Foreground="{DynamicResource AccentForegroundBrush}"
-                                            BorderThickness="0"
-                                            Command="{Binding ClockInCommand}"/>
-                                    <Button Content="Ausstempeln"
-                                            Height="42"
+                            <StackPanel Spacing="10">
+                                <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                                    <Border Grid.Column="0"
+                                            CornerRadius="14"
+                                            Padding="10"
                                             Background="{DynamicResource SecondarySurfaceBrush}"
-                                            Command="{Binding ClockOutCommand}"/>
-                                </StackPanel>
+                                            BorderBrush="{DynamicResource HairlineBrush}"
+                                            BorderThickness="1">
+                                        <StackPanel Spacing="2" VerticalAlignment="Center">
+                                            <TextBlock Text="Start"
+                                                       FontSize="10"
+                                                       Foreground="{DynamicResource SubtleTextBrush}"/>
+                                            <TextBlock Text="{Binding ActiveClockInText}"
+                                                       FontSize="20"
+                                                       FontWeight="SemiBold"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border Grid.Column="1"
+                                            CornerRadius="14"
+                                            Padding="10"
+                                            Background="{DynamicResource MetricThreeBrush}"
+                                            BorderBrush="{DynamicResource HairlineBrush}"
+                                            BorderThickness="1">
+                                        <StackPanel Spacing="2" VerticalAlignment="Center">
+                                            <TextBlock Text="Netto"
+                                                       FontSize="10"
+                                                       Foreground="{DynamicResource SubtleTextBrush}"/>
+                                            <TextBlock Text="{Binding NetWorkedText}"
+                                                       FontSize="20"
+                                                       FontWeight="Bold"/>
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
+
+                                <Grid ColumnDefinitions="Auto,Auto"
+                                      ColumnSpacing="10"
+                                      HorizontalAlignment="Center">
+                                    <Button Width="52"
+                                            Classes="iconRound primaryAction"
+                                            Grid.Column="0"
+                                            ToolTip.Tip="Einstempeln"
+                                            Command="{Binding ClockInCommand}">
+                                        <PathIcon Data="M 5 3 L 19 12 L 5 21 Z"
+                                                  Width="18"
+                                                  Height="18"
+                                                  HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"/>
+                                    </Button>
+
+                                    <Button Width="52"
+                                            Classes="iconRound secondaryAction"
+                                            Grid.Column="1"
+                                            ToolTip.Tip="Ausstempeln"
+                                            Command="{Binding ClockOutCommand}">
+                                        <PathIcon Data="M 5 5 H 19 V 19 H 5 Z"
+                                                  Width="16"
+                                                  Height="16"
+                                                  HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"/>
+                                    </Button>
+                                </Grid>
                             </StackPanel>
                         </Border>
 
@@ -148,23 +151,29 @@
                                            FontWeight="SemiBold"
                                            IsVisible="{Binding ShowBookingTitle}"/>
 
-                                <WrapPanel Orientation="Horizontal" ItemWidth="140">
+                                <WrapPanel Orientation="Horizontal" ItemWidth="168">
                                     <Button Name="ClockInButton"
-                                            Content="Einstempeln"
-                                            Width="140"
+                                            Width="160"
                                             Height="36"
                                             Margin="0,0,8,8"
-                                            Background="{DynamicResource AccentBrush}"
-                                            Foreground="{DynamicResource AccentForegroundBrush}"
-                                            BorderThickness="0"
-                                            Command="{Binding ClockInCommand}"/>
+                                            Classes="primaryAction"
+                                            Command="{Binding ClockInCommand}">
+                                        <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                                            <PathIcon Data="M 5 3 L 19 12 L 5 21 Z" Width="14" Height="14"/>
+                                            <TextBlock Text="Einstempeln" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Button>
                                     <Button Name="ClockOutButton"
-                                            Content="Ausstempeln"
-                                            Width="140"
+                                            Width="160"
                                             Height="36"
                                             Margin="0,0,8,8"
-                                            Background="{DynamicResource SecondarySurfaceBrush}"
-                                            Command="{Binding ClockOutCommand}"/>
+                                            Classes="secondaryAction"
+                                            Command="{Binding ClockOutCommand}">
+                                        <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                                            <PathIcon Data="M 5 5 H 19 V 19 H 5 Z" Width="13" Height="13"/>
+                                            <TextBlock Text="Ausstempeln" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Button>
                                 </WrapPanel>
 
                                 <Border CornerRadius="16"
@@ -314,17 +323,17 @@
 
                                                     <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="6">
                                                         <Button Content="Bearbeiten"
+                                                            Classes="secondaryAction"
                                                                 IsVisible="{Binding IsNotEditing}"
                                                                 Command="{ReflectionBinding DataContext.EditSegmentCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                 CommandParameter="{Binding .}"/>
                                                         <Button Content="Uebernehmen"
+                                                            Classes="primaryAction"
                                                                 IsVisible="{Binding IsEditing}"
-                                                                Background="{DynamicResource AccentBrush}"
-                                                                Foreground="{DynamicResource AccentForegroundBrush}"
-                                                                BorderThickness="0"
                                                                 Command="{ReflectionBinding DataContext.ApplySegmentEditCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                 CommandParameter="{Binding .}"/>
                                                         <Button Content="Abbrechen"
+                                                            Classes="ghostAction"
                                                                 IsVisible="{Binding IsEditing}"
                                                                 Command="{ReflectionBinding DataContext.CancelSegmentEditCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                 CommandParameter="{Binding .}"/>
@@ -390,19 +399,19 @@
 
                                                     <WrapPanel Orientation="Horizontal">
                                                         <Button Content="Bearbeiten"
+                                                            Classes="secondaryAction"
                                                                 Margin="0,0,8,8"
                                                                 IsVisible="{Binding IsNotEditing}"
                                                                 Command="{ReflectionBinding DataContext.EditSegmentCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                 CommandParameter="{Binding .}"/>
                                                         <Button Content="Uebernehmen"
+                                                            Classes="primaryAction"
                                                                 Margin="0,0,8,8"
                                                                 IsVisible="{Binding IsEditing}"
-                                                                Background="{DynamicResource AccentBrush}"
-                                                                Foreground="{DynamicResource AccentForegroundBrush}"
-                                                                BorderThickness="0"
                                                                 Command="{ReflectionBinding DataContext.ApplySegmentEditCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                 CommandParameter="{Binding .}"/>
                                                         <Button Content="Abbrechen"
+                                                            Classes="ghostAction"
                                                                 Margin="0,0,8,8"
                                                                 IsVisible="{Binding IsEditing}"
                                                                 Command="{ReflectionBinding DataContext.CancelSegmentEditCommand, RelativeSource={RelativeSource AncestorType=Window}}"
@@ -487,6 +496,7 @@
                                                FontWeight="SemiBold"/>
                                     <Button Grid.Column="1"
                                             Content="+ Regel"
+                                            Classes="secondaryAction"
                                             Command="{Binding AddBreakRuleCommand}" />
                                 </Grid>
 
@@ -506,6 +516,7 @@
                                                                Value="{Binding DeductedBreakHours}"/>
                                                 <Button Grid.Column="2"
                                                         Content="Entfernen"
+                                                    Classes="ghostAction"
                                                         Command="{ReflectionBinding DataContext.RemoveBreakRuleCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                         CommandParameter="{Binding .}"/>
                                             </Grid>
@@ -520,6 +531,7 @@
                         </Border>
 
                         <Button Content="Einstellungen jetzt speichern"
+                            Classes="primaryAction"
                                 HorizontalAlignment="Right"
                                 Command="{Binding SaveSettingsCommand}"/>
                     </StackPanel>

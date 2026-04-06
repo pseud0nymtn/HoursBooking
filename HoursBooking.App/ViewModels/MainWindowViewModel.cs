@@ -574,7 +574,7 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         ShowMinimalClockMode = windowWidth < 620;
         ShowStandardBookingCard = !ShowMinimalClockMode;
-        ShowSettingsTab = windowWidth >= 1240;
+        ShowSettingsTab = windowWidth >= 620;
         ShowSegmentsSection = windowWidth >= 780;
         ShowSegmentTableLayout = windowWidth >= 1100;
         ShowSegmentCardLayout = ShowSegmentsSection && !ShowSegmentTableLayout;
