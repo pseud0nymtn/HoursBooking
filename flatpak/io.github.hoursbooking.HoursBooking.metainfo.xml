@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.hoursbooking.HoursBooking</id>
+  <name>HoursBooking</name>
+  <summary>Track and book working time</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>Proprietary</project_license>
+  <description>
+    <p>
+      HoursBooking is a desktop app to track working time with clock in/out, break rules,
+      alerts, and net working time overview.
+    </p>
+  </description>
+  <launchable type="desktop-id">io.github.hoursbooking.HoursBooking.desktop</launchable>
+  <provides>
+    <binary>hoursbooking</binary>
+  </provides>
+  <categories>
+    <category>Office</category>
+    <category>Utility</category>
+  </categories>
+  <releases>
+    <release version="0.1.0" date="2026-04-06"/>
+  </releases>
+</component>
