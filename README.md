@@ -37,6 +37,8 @@ It combines daily stamping workflows with weekly progress visibility, editable s
 | `HoursBooking.Core` | Core domain models and calculation logic |
 | `HoursBooking.Tests` | Unit tests for core behavior |
 | `HoursBooking.IntegrationTests` | Headless integration tests |
+| `HoursBooking.Installer` | WiX project to build a Windows MSI installer |
+| `HoursBooking.Installer.Nsis` | ZIP2EXE project (7-Zip SFX) for a cross-platform-built Windows EXE |
 
 ## Quick Start
 
@@ -177,6 +179,42 @@ Tray note:
 Flatpak tray behavior relies on StatusNotifier over DBus. Depending on your desktop environment, a compatible tray or indicator host must be active.
 
 Generated local packaging artifacts (for example `flatpak/publish/`, `flatpak/*.png`, and `flatpak/io.github.hoursbooking.HoursBooking.svg`) are intentionally ignored by `.gitignore` and should not be committed.
+
+## Windows Installer (WiX)
+
+The repository includes a WiX project that builds an MSI and automatically publishes the app for `win-x64` before packaging.
+
+Build the installer on Windows:
+
+```bash
+dotnet build HoursBooking.Installer/HoursBooking.Installer.wixproj -c Release
+```
+
+Resulting MSI output:
+
+```text
+HoursBooking.Installer/bin/Release/*.msi
+```
+
+## Windows Installer (ZIP2EXE Style, Cross-Platform Build)
+
+The repository also includes a ZIP2EXE-style NSIS project that creates a lightweight self-extracting Windows EXE from the published app files.
+
+Prerequisite:
+
+- `makensis` available in `PATH`
+
+Build command:
+
+```bash
+dotnet build HoursBooking.Installer.Nsis/HoursBooking.Installer.Nsis.csproj -c Release
+```
+
+Resulting EXE output:
+
+```text
+HoursBooking.Installer.Nsis/bin/Release/HoursBooking-Setup-1.0.0.exe
+```
 
 ## Architecture
 

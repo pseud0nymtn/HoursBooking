@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <BuildZip2ExeInstaller Condition="'$(BuildZip2ExeInstaller)' == ''">true</BuildZip2ExeInstaller>
+    <ProductVersion Condition="'$(ProductVersion)' == ''">1.0.0</ProductVersion>
+    <AppProjectPath>$(MSBuildThisFileDirectory)../HoursBooking.App/HoursBooking.App.csproj</AppProjectPath>
+    <PublishDir>$(MSBuildThisFileDirectory)../HoursBooking.App/bin/$(Configuration)/net10.0/win-x64/publish/</PublishDir>
+    <InstallerOutputDir>$(MSBuildThisFileDirectory)bin/$(Configuration)/</InstallerOutputDir>
+    <InstallerScript>$(MSBuildThisFileDirectory)zip2exe.nsi</InstallerScript>
+    <InstallerFileName>HoursBooking-Setup-$(ProductVersion).exe</InstallerFileName>
+  </PropertyGroup>
+
+  <Target Name="BuildZip2ExeInstallerTarget" AfterTargets="Build" Condition="'$(BuildZip2ExeInstaller)' == 'true'">
+    <Exec Command="dotnet publish &quot;$(AppProjectPath)&quot; -c $(Configuration) -r win-x64 --self-contained false -o &quot;$(PublishDir)&quot;" />
+    <MakeDir Directories="$(InstallerOutputDir)" />
+    <Exec Command="makensis -DAPP_NAME=HoursBooking -DAPP_VERSION=$(ProductVersion) -DPUBLISH_DIR=&quot;$(PublishDir)&quot; -DOUT_DIR=&quot;$(InstallerOutputDir)&quot; -DOUT_FILE=$(InstallerFileName) &quot;$(InstallerScript)&quot;" />
+  </Target>
+</Project>
