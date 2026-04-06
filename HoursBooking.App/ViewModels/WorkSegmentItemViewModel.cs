@@ -15,4 +15,16 @@ public partial class WorkSegmentItemViewModel : ObservableObject
 
     [ObservableProperty]
     private string duration = string.Empty;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsNotEditing))]
+    private bool isEditing;
+
+    [ObservableProperty]
+    private TimeSpan editableStartTime;
+
+    [ObservableProperty]
+    private TimeSpan? editableEndTime;
+
+    public bool IsNotEditing => !IsEditing;
 }

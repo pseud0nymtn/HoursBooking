@@ -53,209 +53,216 @@
             </Grid>
         </Border>
 
-        <Grid Grid.Row="1" ColumnDefinitions="2.2*,1.3*" ColumnSpacing="16">
-            <StackPanel Grid.Column="0" Spacing="16">
-                <Border CornerRadius="12" Padding="16" Background="{DynamicResource CardBackgroundBrush}">
-                    <StackPanel Spacing="14">
-                        <TextBlock Text="Buchung"
-                                   FontSize="20"
-                                   FontWeight="SemiBold"/>
+        <TabControl Grid.Row="1">
+            <TabItem Header="Buchung">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Spacing="16" Margin="0,12,0,0">
+                        <Border CornerRadius="12" Padding="16" Background="{DynamicResource CardBackgroundBrush}">
+                            <StackPanel Spacing="14">
+                                <TextBlock Text="Buchung"
+                                           FontSize="20"
+                                           FontWeight="SemiBold"/>
 
-                        <StackPanel Orientation="Horizontal" Spacing="10">
-                            <Button Name="ClockInButton"
-                                    Content="Einstempeln"
-                                    Width="150"
-                                    Height="40"
-                                    Command="{Binding ClockInCommand}"/>
-                            <Button Name="ClockOutButton"
-                                    Content="Ausstempeln"
-                                    Width="150"
-                                    Height="40"
-                                    Command="{Binding ClockOutCommand}"/>
-                        </StackPanel>
-
-                        <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
-                            <Border Grid.Column="0" CornerRadius="10" Padding="12" Background="{DynamicResource MetricOneBrush}">
-                                <StackPanel Spacing="4">
-                                    <TextBlock Text="Brutto" FontWeight="SemiBold"/>
-                                    <TextBlock Text="{Binding GrossWorkedText}" FontSize="25" FontWeight="Bold"/>
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <Button Name="ClockInButton"
+                                            Content="Einstempeln"
+                                            Width="150"
+                                            Height="40"
+                                            Command="{Binding ClockInCommand}"/>
+                                    <Button Name="ClockOutButton"
+                                            Content="Ausstempeln"
+                                            Width="150"
+                                            Height="40"
+                                            Command="{Binding ClockOutCommand}"/>
                                 </StackPanel>
-                            </Border>
 
-                            <Border Grid.Column="1" CornerRadius="10" Padding="12" Background="{DynamicResource MetricTwoBrush}">
-                                <StackPanel Spacing="4">
-                                    <TextBlock Text="Pause (Abzug)" FontWeight="SemiBold"/>
-                                    <TextBlock Text="{Binding DeductedBreakText}" FontSize="25" FontWeight="Bold"/>
-                                </StackPanel>
-                            </Border>
+                                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
+                                    <Border Grid.Column="0" CornerRadius="10" Padding="12" Background="{DynamicResource MetricOneBrush}">
+                                        <StackPanel Spacing="4">
+                                            <TextBlock Text="Brutto" FontWeight="SemiBold"/>
+                                            <TextBlock Text="{Binding GrossWorkedText}" FontSize="25" FontWeight="Bold"/>
+                                        </StackPanel>
+                                    </Border>
 
-                            <Border Grid.Column="2" CornerRadius="10" Padding="12" Background="{DynamicResource MetricThreeBrush}">
-                                <StackPanel Spacing="4">
-                                    <TextBlock Text="Netto" FontWeight="SemiBold"/>
-                                    <TextBlock Text="{Binding NetWorkedText}" FontSize="25" FontWeight="Bold"/>
-                                </StackPanel>
-                            </Border>
-                        </Grid>
+                                    <Border Grid.Column="1" CornerRadius="10" Padding="12" Background="{DynamicResource MetricTwoBrush}">
+                                        <StackPanel Spacing="4">
+                                            <TextBlock Text="Pause (Abzug)" FontWeight="SemiBold"/>
+                                            <TextBlock Text="{Binding DeductedBreakText}" FontSize="25" FontWeight="Bold"/>
+                                        </StackPanel>
+                                    </Border>
 
-                        <Border CornerRadius="10"
-                                Padding="12"
-                                Background="{Binding AlertBackground}">
-                            <StackPanel Spacing="6">
-                                <TextBlock Text="{Binding AlertMessage}"
-                                           FontSize="15"
-                                           FontWeight="SemiBold"
-                                           Foreground="{Binding AlertForeground}"/>
-                                <TextBlock Text="{Binding DesiredEndTimeText}"
-                                           FontSize="14"
-                                           FontWeight="SemiBold"
-                                           Foreground="{Binding AlertForeground}"/>
+                                    <Border Grid.Column="2" CornerRadius="10" Padding="12" Background="{DynamicResource MetricThreeBrush}">
+                                        <StackPanel Spacing="4">
+                                            <TextBlock Text="Netto" FontWeight="SemiBold"/>
+                                            <TextBlock Text="{Binding NetWorkedText}" FontSize="25" FontWeight="Bold"/>
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
+
+                                <Border CornerRadius="10"
+                                        Padding="12"
+                                        Background="{Binding AlertBackground}">
+                                    <StackPanel Spacing="6">
+                                        <TextBlock Text="{Binding AlertMessage}"
+                                                   FontSize="15"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{Binding AlertForeground}"/>
+                                        <TextBlock Text="{Binding DesiredEndTimeText}"
+                                                   FontSize="14"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{Binding AlertForeground}"/>
+                                    </StackPanel>
+                                </Border>
                             </StackPanel>
                         </Border>
-                    </StackPanel>
-                </Border>
 
-                <Border CornerRadius="12" Padding="16" Background="{DynamicResource CardMutedBackgroundBrush}">
-                    <StackPanel Spacing="10">
-                        <TextBlock Text="Arbeitsabschnitte"
-                                   FontSize="20"
-                                   FontWeight="SemiBold"/>
-                        <Grid ColumnDefinitions="*,*,*,Auto" ColumnSpacing="8" Margin="0,0,0,4">
-                            <TextBlock Grid.Column="0" Text="Start" FontWeight="SemiBold"/>
-                            <TextBlock Grid.Column="1" Text="Ende" FontWeight="SemiBold"/>
-                            <TextBlock Grid.Column="2" Text="Dauer" FontWeight="SemiBold"/>
-                            <TextBlock Grid.Column="3" Text="Aktion" FontWeight="SemiBold"/>
-                        </Grid>
-                        <ItemsControl ItemsSource="{Binding Segments}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate x:DataType="vm:WorkSegmentItemViewModel">
-                                    <Grid ColumnDefinitions="*,*,*,Auto" ColumnSpacing="8" Margin="0,2,0,2">
-                                        <TextBlock Grid.Column="0" Text="{Binding Start}"/>
-                                        <TextBlock Grid.Column="1" Text="{Binding End}"/>
-                                        <TextBlock Grid.Column="2" Text="{Binding Duration}"/>
-                                        <Button Grid.Column="3"
-                                                Content="Bearbeiten"
-                                            Command="{ReflectionBinding DataContext.EditSegmentCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                CommandParameter="{Binding .}"/>
-                                    </Grid>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-
-                        <Border CornerRadius="10" Padding="12" Background="{DynamicResource CardBackgroundBrush}">
-                            <StackPanel Spacing="8">
-                                <TextBlock Text="Arbeitsabschnitt nachbearbeiten"
+                        <Border CornerRadius="12" Padding="16" Background="{DynamicResource CardMutedBackgroundBrush}">
+                            <StackPanel Spacing="10">
+                                <TextBlock Text="Arbeitsabschnitte"
+                                           FontSize="20"
                                            FontWeight="SemiBold"/>
+                                <Grid ColumnDefinitions="*,*,*,Auto" ColumnSpacing="8" Margin="0,0,0,4">
+                                    <TextBlock Grid.Column="0" Text="Start" FontWeight="SemiBold"/>
+                                    <TextBlock Grid.Column="1" Text="Ende" FontWeight="SemiBold"/>
+                                    <TextBlock Grid.Column="2" Text="Dauer" FontWeight="SemiBold"/>
+                                    <TextBlock Grid.Column="3" Text="Aktion" FontWeight="SemiBold"/>
+                                </Grid>
+                                <ItemsControl ItemsSource="{Binding Segments}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:WorkSegmentItemViewModel">
+                                            <Grid ColumnDefinitions="*,*,*,Auto" ColumnSpacing="8" Margin="0,2,0,2">
+                                                <TextBlock Grid.Column="0"
+                                                           Text="{Binding Start}"
+                                                           IsVisible="{Binding IsNotEditing}"/>
+                                                <TimePicker Grid.Column="0"
+                                                            SelectedTime="{Binding EditableStartTime}"
+                                                            IsVisible="{Binding IsEditing}"/>
+
+                                                <TextBlock Grid.Column="1"
+                                                           Text="{Binding End}"
+                                                           IsVisible="{Binding IsNotEditing}"/>
+                                                <TimePicker Grid.Column="1"
+                                                            SelectedTime="{Binding EditableEndTime}"
+                                                            IsVisible="{Binding IsEditing}"/>
+
+                                                <TextBlock Grid.Column="2" Text="{Binding Duration}"/>
+
+                                                <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="6">
+                                                    <Button Content="Bearbeiten"
+                                                            IsVisible="{Binding IsNotEditing}"
+                                                            Command="{ReflectionBinding DataContext.EditSegmentCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                            CommandParameter="{Binding .}"/>
+                                                    <Button Content="Uebernehmen"
+                                                            IsVisible="{Binding IsEditing}"
+                                                            Command="{ReflectionBinding DataContext.ApplySegmentEditCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                            CommandParameter="{Binding .}"/>
+                                                    <Button Content="Abbrechen"
+                                                            IsVisible="{Binding IsEditing}"
+                                                            Command="{ReflectionBinding DataContext.CancelSegmentEditCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                            CommandParameter="{Binding .}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
                                 <TextBlock Text="{Binding SegmentEditMessage}"
                                            Foreground="{DynamicResource SubtleTextBrush}"
                                            TextWrapping="Wrap"/>
-                                <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
-                                    <StackPanel Grid.Column="0" Spacing="4">
-                                        <TextBlock Text="Start (HH:mm)"/>
-                                        <TextBox Text="{Binding SelectedSegmentStartText}" Watermark="08:15"/>
-                                    </StackPanel>
-                                    <StackPanel Grid.Column="1" Spacing="4">
-                                        <TextBlock Text="Ende (HH:mm, leer = laufend)"/>
-                                        <TextBox Text="{Binding SelectedSegmentEndText}" Watermark="16:45"/>
-                                    </StackPanel>
-                                </Grid>
-                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <Button Content="Uebernehmen"
-                                            Command="{Binding ApplySegmentEditCommand}"/>
-                                    <Button Content="Abbrechen"
-                                            Command="{Binding CancelSegmentEditCommand}"/>
-                                </StackPanel>
                             </StackPanel>
                         </Border>
                     </StackPanel>
-                </Border>
-            </StackPanel>
+                </ScrollViewer>
+            </TabItem>
 
-            <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
-                <StackPanel Spacing="16">
-                    <Border CornerRadius="12" Padding="16" Background="{DynamicResource SettingsCardOneBrush}">
-                        <StackPanel Spacing="10">
-                            <TextBlock Text="Anzeige"
-                                       FontSize="20"
-                                       FontWeight="SemiBold"/>
-                            <TextBlock Text="Theme"/>
-                            <ComboBox Name="ThemeComboBox"
-                                      ItemsSource="{Binding ThemeModes}"
-                                      SelectedItem="{Binding SelectedThemeMode}" />
-                        </StackPanel>
-                    </Border>
-
-                    <Border CornerRadius="12" Padding="16" Background="{DynamicResource SettingsCardTwoBrush}">
-                        <StackPanel Spacing="10">
-                            <TextBlock Text="Warnstufen"
-                                       FontSize="20"
-                                       FontWeight="SemiBold"/>
-                            <TextBlock Text="Maximale Arbeitszeit Netto (Stunden)"/>
-                            <NumericUpDown Minimum="0.1" Maximum="24" Increment="0.25" Value="{Binding MaxWorkHours}"/>
-
-                            <TextBlock Text="Wunscharbeitszeit Netto (Stunden)"/>
-                            <NumericUpDown Minimum="0" Maximum="24" Increment="0.25" Value="{Binding DesiredWorkHours}"/>
-
-                            <CheckBox Content="Ausgestempelte Zeiten auf Pausenpflicht anrechnen"
-                                      IsChecked="{Binding CountStampedOutTimeAsBreak}"/>
-
-                            <TextBlock Text="Info-Schwelle (Minuten Restzeit)"/>
-                            <NumericUpDown Minimum="0" Maximum="600" Increment="5" Value="{Binding InfoThresholdMinutes}"/>
-
-                            <TextBlock Text="Warning-Schwelle (Minuten Restzeit)"/>
-                            <NumericUpDown Minimum="0" Maximum="600" Increment="5" Value="{Binding WarningThresholdMinutes}"/>
-
-                            <TextBlock Text="Error-Schwelle (Minuten Restzeit)"/>
-                            <NumericUpDown Minimum="0" Maximum="600" Increment="5" Value="{Binding ErrorThresholdMinutes}"/>
-                        </StackPanel>
-                    </Border>
-
-                    <Border CornerRadius="12" Padding="16" Background="{DynamicResource SettingsCardThreeBrush}">
-                        <StackPanel Spacing="10">
-                            <Grid ColumnDefinitions="*,Auto">
-                                <TextBlock Grid.Column="0"
-                                           Text="Pausenregeln"
+            <TabItem Header="Einstellungen">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Spacing="16" Margin="0,12,0,0">
+                        <Border CornerRadius="12" Padding="16" Background="{DynamicResource SettingsCardOneBrush}">
+                            <StackPanel Spacing="10">
+                                <TextBlock Text="Anzeige"
                                            FontSize="20"
                                            FontWeight="SemiBold"/>
-                                <Button Grid.Column="1"
-                                        Content="+ Regel"
-                                        Command="{Binding AddBreakRuleCommand}" />
-                            </Grid>
+                                <TextBlock Text="Theme"/>
+                                <ComboBox Name="ThemeComboBox"
+                                          ItemsSource="{Binding ThemeModes}"
+                                          SelectedItem="{Binding SelectedThemeMode}" />
+                            </StackPanel>
+                        </Border>
 
-                            <ItemsControl ItemsSource="{Binding BreakRules}">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate x:DataType="vm:BreakRuleViewModel">
-                                        <Grid ColumnDefinitions="1.1*,1.1*,Auto" ColumnSpacing="8" Margin="0,2,0,2">
-                                            <NumericUpDown Grid.Column="0"
-                                                           Minimum="0"
-                                                           Maximum="24"
-                                                           Increment="0.25"
-                                                           Value="{Binding MinWorkedHours}"/>
-                                            <NumericUpDown Grid.Column="1"
-                                                           Minimum="0"
-                                                           Maximum="8"
-                                                           Increment="0.25"
-                                                           Value="{Binding DeductedBreakHours}"/>
-                                            <Button Grid.Column="2"
-                                                    Content="Entfernen"
-                                                    Command="{ReflectionBinding DataContext.RemoveBreakRuleCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                    CommandParameter="{Binding .}"/>
-                                        </Grid>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                            <TextBlock Text="Format: Wenn Arbeitszeit >= MinWorkedHours, dann DeductedBreakHours abziehen."
-                                       FontSize="12"
-                                       Foreground="{DynamicResource SubtleTextBrush}"
-                                       TextWrapping="Wrap"/>
-                        </StackPanel>
-                    </Border>
+                        <Border CornerRadius="12" Padding="16" Background="{DynamicResource SettingsCardTwoBrush}">
+                            <StackPanel Spacing="10">
+                                <TextBlock Text="Warnstufen"
+                                           FontSize="20"
+                                           FontWeight="SemiBold"/>
+                                <TextBlock Text="Maximale Arbeitszeit Netto (Stunden)"/>
+                                <NumericUpDown Minimum="0.1" Maximum="24" Increment="0.25" Value="{Binding MaxWorkHours}"/>
 
-                    <Button Content="Einstellungen jetzt speichern"
-                            HorizontalAlignment="Right"
-                            Command="{Binding SaveSettingsCommand}"/>
-                </StackPanel>
-            </ScrollViewer>
-        </Grid>
+                                <TextBlock Text="Wunscharbeitszeit Netto (Stunden)"/>
+                                <NumericUpDown Minimum="0" Maximum="24" Increment="0.25" Value="{Binding DesiredWorkHours}"/>
+
+                                <CheckBox Content="Ausgestempelte Zeiten auf Pausenpflicht anrechnen"
+                                          IsChecked="{Binding CountStampedOutTimeAsBreak}"/>
+
+                                <TextBlock Text="Info-Schwelle (Minuten Restzeit)"/>
+                                <NumericUpDown Minimum="0" Maximum="600" Increment="5" Value="{Binding InfoThresholdMinutes}"/>
+
+                                <TextBlock Text="Warning-Schwelle (Minuten Restzeit)"/>
+                                <NumericUpDown Minimum="0" Maximum="600" Increment="5" Value="{Binding WarningThresholdMinutes}"/>
+
+                                <TextBlock Text="Error-Schwelle (Minuten Restzeit)"/>
+                                <NumericUpDown Minimum="0" Maximum="600" Increment="5" Value="{Binding ErrorThresholdMinutes}"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border CornerRadius="12" Padding="16" Background="{DynamicResource SettingsCardThreeBrush}">
+                            <StackPanel Spacing="10">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <TextBlock Grid.Column="0"
+                                               Text="Pausenregeln"
+                                               FontSize="20"
+                                               FontWeight="SemiBold"/>
+                                    <Button Grid.Column="1"
+                                            Content="+ Regel"
+                                            Command="{Binding AddBreakRuleCommand}" />
+                                </Grid>
+
+                                <ItemsControl ItemsSource="{Binding BreakRules}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:BreakRuleViewModel">
+                                            <Grid ColumnDefinitions="1.1*,1.1*,Auto" ColumnSpacing="8" Margin="0,2,0,2">
+                                                <NumericUpDown Grid.Column="0"
+                                                               Minimum="0"
+                                                               Maximum="24"
+                                                               Increment="0.25"
+                                                               Value="{Binding MinWorkedHours}"/>
+                                                <NumericUpDown Grid.Column="1"
+                                                               Minimum="0"
+                                                               Maximum="8"
+                                                               Increment="0.25"
+                                                               Value="{Binding DeductedBreakHours}"/>
+                                                <Button Grid.Column="2"
+                                                        Content="Entfernen"
+                                                        Command="{ReflectionBinding DataContext.RemoveBreakRuleCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                        CommandParameter="{Binding .}"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <TextBlock Text="Format: Wenn Arbeitszeit >= MinWorkedHours, dann DeductedBreakHours abziehen."
+                                           FontSize="12"
+                                           Foreground="{DynamicResource SubtleTextBrush}"
+                                           TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Button Content="Einstellungen jetzt speichern"
+                                HorizontalAlignment="Right"
+                                Command="{Binding SaveSettingsCommand}"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
     </Grid>
     </ScrollViewer>
 

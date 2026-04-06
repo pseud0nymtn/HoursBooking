@@ -107,16 +107,6 @@ public partial class MainWindowViewModel : ViewModelBase
     private string desiredEndTimeText = "Noch nicht gestartet";
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(HasSelectedSegment))]
-    private WorkSegment? selectedSegment;
-
-    [ObservableProperty]
-    private string selectedSegmentStartText = string.Empty;
-
-    [ObservableProperty]
-    private string selectedSegmentEndText = string.Empty;
-
-    [ObservableProperty]
     private string segmentEditMessage = "Arbeitsabschnitt auswaehlen, um Zeiten anzupassen.";
 
     public string CurrentDayLabel => CurrentTime.ToString("dddd, dd.MM.yyyy");
@@ -124,8 +114,6 @@ public partial class MainWindowViewModel : ViewModelBase
     public string CurrentTimeLabel => CurrentTime.ToString("HH:mm:ss");
 
     public bool HasAlert => AlertLevel != AlertLevel.None;
-
-    public bool HasSelectedSegment => SelectedSegment is not null;
 
     public async Task InitializeAsync()
     {
@@ -353,7 +341,11 @@ public partial class MainWindowViewModel : ViewModelBase
 
     private void RefreshSegments()
     {
-        Segments.Clear();
+        var existingRows = Segments
+            .Where(item => item.Segment is not null)
+            .ToDictionary(item => item.Segment!, item => item);
+        var desiredRows = new List<WorkSegmentItemViewModel>(_segments.Count);
+
         foreach (var segment in _segments)
         {
             var end = segment.End ?? CurrentTime;
@@ -363,13 +355,53 @@ public partial class MainWindowViewModel : ViewModelBase
                 duration = TimeSpan.Zero;
             }
 
-            Segments.Add(new WorkSegmentItemViewModel
+            if (!existingRows.TryGetValue(segment, out var row))
             {
-                Segment = segment,
-                Start = segment.Start.ToString("HH:mm"),
-                End = segment.End.HasValue ? segment.End.Value.ToString("HH:mm") : "Laeuft",
-                Duration = FormatDuration(duration)
-            });
+                row = new WorkSegmentItemViewModel
+                {
+                    Segment = segment
+                };
+            }
+
+            if (!row.IsEditing)
+            {
+                row.Start = segment.Start.ToString("HH:mm");
+                row.End = segment.End.HasValue ? segment.End.Value.ToString("HH:mm") : "Laeuft";
+            }
+
+            row.Duration = FormatDuration(duration);
+            desiredRows.Add(row);
+        }
+
+        for (var index = 0; index < desiredRows.Count; index++)
+        {
+            var desiredRow = desiredRows[index];
+
+            if (index >= Segments.Count)
+            {
+                Segments.Add(desiredRow);
+                continue;
+            }
+
+            if (ReferenceEquals(Segments[index], desiredRow))
+            {
+                continue;
+            }
+
+            var existingIndex = Segments.IndexOf(desiredRow);
+            if (existingIndex >= 0)
+            {
+                Segments.Move(existingIndex, index);
+            }
+            else
+            {
+                Segments.Insert(index, desiredRow);
+            }
+        }
+
+        while (Segments.Count > desiredRows.Count)
+        {
+            Segments.RemoveAt(Segments.Count - 1);
         }
     }
 
@@ -381,56 +413,62 @@ public partial class MainWindowViewModel : ViewModelBase
             return;
         }
 
-        SelectedSegment = item.Segment;
-        SelectedSegmentStartText = item.Segment.Start.ToString("HH:mm");
-        SelectedSegmentEndText = item.Segment.End?.ToString("HH:mm") ?? string.Empty;
+        foreach (var segmentItem in Segments)
+        {
+            segmentItem.IsEditing = false;
+        }
+
+        item.EditableStartTime = item.Segment.Start.TimeOfDay;
+        item.EditableEndTime = item.Segment.End?.TimeOfDay;
+        item.IsEditing = true;
         SegmentEditMessage = "Zeiten anpassen und uebernehmen.";
     }
 
     [RelayCommand]
-    private void CancelSegmentEdit()
+    private void CancelSegmentEdit(WorkSegmentItemViewModel? item)
     {
-        SelectedSegment = null;
-        SelectedSegmentStartText = string.Empty;
-        SelectedSegmentEndText = string.Empty;
+        if (item is null)
+        {
+            return;
+        }
+
+        item.IsEditing = false;
+        if (item.Segment is not null)
+        {
+            item.Start = item.Segment.Start.ToString("HH:mm");
+            item.End = item.Segment.End.HasValue ? item.Segment.End.Value.ToString("HH:mm") : "Laeuft";
+        }
+
         SegmentEditMessage = "Arbeitsabschnitt auswaehlen, um Zeiten anzupassen.";
     }
 
     [RelayCommand]
-    private void ApplySegmentEdit()
+    private void ApplySegmentEdit(WorkSegmentItemViewModel? item)
     {
-        if (SelectedSegment is null)
+        if (item?.Segment is null)
         {
             SegmentEditMessage = "Bitte zuerst einen Arbeitsabschnitt auswaehlen.";
             return;
         }
 
-        if (!TimeSpan.TryParse(SelectedSegmentStartText, out var startTime))
-        {
-            SegmentEditMessage = "Startzeit konnte nicht gelesen werden. Format HH:mm verwenden.";
-            return;
-        }
+        var startTime = item.EditableStartTime;
 
-        var baseDate = SelectedSegment.Start.Date;
-        var updatedStart = new DateTimeOffset(baseDate + startTime, SelectedSegment.Start.Offset);
+        var editedSegment = item.Segment;
+        var baseDate = editedSegment.Start.Date;
+        var updatedStart = new DateTimeOffset(baseDate + startTime, editedSegment.Start.Offset);
         DateTimeOffset? updatedEnd = null;
 
-        if (!string.IsNullOrWhiteSpace(SelectedSegmentEndText))
+        if (item.EditableEndTime.HasValue)
         {
-            if (!TimeSpan.TryParse(SelectedSegmentEndText, out var endTime))
-            {
-                SegmentEditMessage = "Endzeit konnte nicht gelesen werden. Format HH:mm verwenden.";
-                return;
-            }
-
-            updatedEnd = new DateTimeOffset(baseDate + endTime, SelectedSegment.Start.Offset);
+            var endTime = item.EditableEndTime.Value;
+            updatedEnd = new DateTimeOffset(baseDate + endTime, editedSegment.Start.Offset);
             if (updatedEnd < updatedStart)
             {
                 SegmentEditMessage = "Endzeit darf nicht vor der Startzeit liegen.";
                 return;
             }
         }
-        else if (SelectedSegment != _activeSegment)
+        else if (editedSegment != _activeSegment)
         {
             SegmentEditMessage = "Fuer abgeschlossene Abschnitte muss eine Endzeit gesetzt sein.";
             return;
@@ -438,7 +476,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
         var candidateEnd = updatedEnd ?? CurrentTime;
         var overlapsExistingSegment = _segments
-            .Where(segment => segment != SelectedSegment)
+            .Where(segment => segment != editedSegment)
             .Any(segment => updatedStart < (segment.End ?? CurrentTime) && segment.Start < candidateEnd);
 
         if (overlapsExistingSegment)
@@ -447,10 +485,11 @@ public partial class MainWindowViewModel : ViewModelBase
             return;
         }
 
-        SelectedSegment.Start = updatedStart;
-        SelectedSegment.End = updatedEnd;
+        editedSegment.Start = updatedStart;
+        editedSegment.End = updatedEnd;
 
         _segments.Sort((left, right) => left.Start.CompareTo(right.Start));
+        item.IsEditing = false;
         SegmentEditMessage = "Arbeitsabschnitt aktualisiert.";
         Recalculate();
         _ = SaveSettingsAsync();
