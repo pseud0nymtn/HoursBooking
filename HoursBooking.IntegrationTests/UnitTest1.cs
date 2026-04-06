@@ -17,7 +17,7 @@ public class MainWindowIntegrationTests
     {
         var localizationService = new LocalizationService();
         localizationService.SetLanguageCode("de");
-        var viewModel = new MainWindowViewModel(new BookingCalculator(), new InMemorySettingsStore(), new NoOpThemeService(), localizationService);
+        var viewModel = new MainWindowViewModel(new BookingCalculator(), new InMemorySettingsStore(), new NoOpThemeService(), localizationService, new NoOpFileSaveDialogService());
         await viewModel.InitializeAsync();
 
         var window = new MainWindow
@@ -46,7 +46,7 @@ public class MainWindowIntegrationTests
     {
         var localizationService = new LocalizationService();
         localizationService.SetLanguageCode("de");
-        var viewModel = new MainWindowViewModel(new BookingCalculator(), new InMemorySettingsStore(), new NoOpThemeService(), localizationService);
+        var viewModel = new MainWindowViewModel(new BookingCalculator(), new InMemorySettingsStore(), new NoOpThemeService(), localizationService, new NoOpFileSaveDialogService());
         await viewModel.InitializeAsync();
 
         viewModel.ClockInCommand.Execute(null);
@@ -75,6 +75,14 @@ public class MainWindowIntegrationTests
     {
         public void ApplyTheme(ThemeMode themeMode)
         {
+        }
+    }
+
+    private sealed class NoOpFileSaveDialogService : IFileSaveDialogService
+    {
+        public Task<string?> PickCsvSavePathAsync(string suggestedFileName, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult<string?>(null);
         }
     }
 }

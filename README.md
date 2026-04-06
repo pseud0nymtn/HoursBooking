@@ -1,23 +1,24 @@
 # HoursBooking
 
-HoursBooking is a cross-platform desktop app (Avalonia) for tracking daily working time.
-It supports clock in/out workflows, configurable break rules, net-time alerts, and inline correction of work segments.
+HoursBooking is a cross-platform desktop app (Avalonia) for practical working-time tracking.
+It combines daily stamping workflows with weekly progress visibility, editable segment history, and configurable rule-based calculations.
 
 > [!NOTE]
 > This project's source code was created with AI assistance.
 
-## Highlights
+## What It Does
 
-- Live clock in/out tracking with continuously updated totals.
-- Gross, deducted break, and net worked time overview.
-- Configurable alert thresholds (`Info`, `Warning`, `Error`) near maximum net work time.
-- Desired work time target with estimated completion time.
-- Flexible break rules with multiple tiers.
-- Optional deduction of stamped-out gaps from required break time.
-- Inline editing for existing work segments.
-- Theme support: `System`, `Light`, `Dark`.
-- Localization-ready UI.
-- JSON settings persistence.
+- Clock in and clock out with live time updates.
+- Show `Gross`, `Break deduction`, and `Net` worked time for today.
+- Compute the expected target reach time for the current day.
+- Track weekly totals and compare against a configurable weekly target (`Weekly desired hours`).
+- Add short comments to stamped segments (up to 280 characters).
+- Edit or remove individual segments, or clear the entire list.
+- Export all segments to CSV.
+- Configure break deduction rules with multiple thresholds.
+- Optionally count stamped-out gaps toward mandatory break deduction.
+- Persist settings and segment history across restarts.
+- Support localized UI (`de`, `en`) and app themes (`System`, `Light`, `Dark`).
 
 ## Tech Stack
 
@@ -30,10 +31,10 @@ It supports clock in/out workflows, configurable break rules, net-time alerts, a
 
 | Path | Purpose |
 |---|---|
-| `HoursBooking.App` | Avalonia desktop app, UI, view models, app services |
-| `HoursBooking.Core` | Core business logic (calculation, rules, alerts) |
-| `HoursBooking.Tests` | Unit tests for core logic |
-| `HoursBooking.IntegrationTests` | Avalonia headless integration tests |
+| `HoursBooking.App` | Avalonia desktop app, views, view models, app services |
+| `HoursBooking.Core` | Core domain models and calculation logic |
+| `HoursBooking.Tests` | Unit tests for core behavior |
+| `HoursBooking.IntegrationTests` | Headless integration tests |
 
 ## Quick Start
 
@@ -41,15 +42,13 @@ It supports clock in/out workflows, configurable break rules, net-time alerts, a
 
 - .NET 10 SDK
 
-Check your SDK version:
+Check your SDK:
 
 ```bash
 dotnet --version
 ```
 
-### Run the Application
-
-From repository root:
+### Run the App
 
 ```bash
 dotnet run --project HoursBooking.App/HoursBooking.App.csproj
@@ -61,33 +60,35 @@ dotnet run --project HoursBooking.App/HoursBooking.App.csproj
 dotnet test HoursBooking.slnx
 ```
 
-## Usage
-
-### Track Working Time
+## Daily Workflow
 
 1. Click `Clock In` to start a segment.
-2. Click `Clock Out` to finish the active segment.
-3. Repeat as needed for multiple segments during the day.
-4. Use the `Work Segments` list to review and update entries.
+2. Optionally enter a short comment for the next stamp action.
+3. Click `Clock Out` to complete the active segment.
+4. Repeat as needed throughout the day.
+5. Use the segment list to edit, remove, export, or clear entries.
 
-### Edit Existing Segments
-
-1. Click `Edit` on a segment.
-2. Adjust start/end time.
-3. Click `Apply` to save.
-
-The app prevents invalid and overlapping segment ranges.
+The app validates segment edits and prevents invalid overlaps.
 
 ## Configuration
 
-Configurable settings include:
+### Working-Time Settings
 
-- Maximum net working time (hours)
-- Desired net working time (hours)
+- `Maximum net working time (hours)`
+- `Desired net working time (hours)`
+- `Desired weekly net working time (hours)`
 - Alert thresholds for `Info`, `Warning`, and `Error`
+
+### Break Model
+
 - Custom break rules (`if worked >= X hours, deduct Y hours`)
-- Option to count stamped-out time toward mandatory breaks
-- Theme mode (`System`, `Light`, `Dark`)
+- Optional setting to count stamped-out gaps toward mandatory breaks
+
+### UI Settings
+
+- Theme: `System`, `Light`, `Dark`
+- Language: system/de/en
+- Tray behavior options
 
 ### Break Rule Example
 
@@ -97,9 +98,28 @@ Configurable settings include:
 If stamped-out gaps are counted and there is already `0.50h` gap time,
 only the remaining required break is deducted from net time.
 
+## Calculation Model
+
+### Daily Net Time
+
+```text
+Net = Gross - EffectiveBreakDeduction
+```
+
+`EffectiveBreakDeduction` is either:
+
+- the required break from configured rules, or
+- required break minus stamped-out gaps (if enabled)
+
+### Weekly View
+
+- Weekly totals are derived from segments in the current week.
+- Weekly difference is calculated against `Desired weekly net working time (hours)`.
+- Positive difference means overtime relative to target; negative means remaining deficit.
+
 ## Persistence
 
-Settings are stored as JSON in the user profile.
+Settings and segment history are stored as JSON in the user profile.
 
 Typical Linux location:
 
@@ -109,24 +129,9 @@ Typical Linux location:
 
 Exact path depends on `Environment.SpecialFolder.ApplicationData`.
 
-## Calculation Model
-
-Net worked time:
-
-```text
-Net = Gross - EffectiveBreakDeduction
-```
-
-Effective break deduction is:
-
-- Required break from configured rules, or
-- Required break minus stamped-out gaps (if enabled)
-
-Desired work time completion is computed dynamically and accounts for break-rule threshold jumps.
-
 ## Flatpak (Linux)
 
-You can build a Flatpak bundle locally without auto-installation.
+You can build a Flatpak bundle locally without automatic installation.
 
 ### Prerequisites
 
@@ -135,7 +140,7 @@ You can build a Flatpak bundle locally without auto-installation.
 - `dotnet` SDK 10
 - `magick` (ImageMagick)
 
-Install runtime/sdk:
+Install runtime and SDK:
 
 ```bash
 flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
@@ -148,13 +153,13 @@ flatpak install -y flathub org.freedesktop.Platform//24.08 org.freedesktop.Sdk//
 ./scripts/build-flatpak.sh
 ```
 
-Output bundle:
+Generated bundle:
 
 ```text
 io.github.hoursbooking.HoursBooking.flatpak
 ```
 
-Optional install (or reinstall after manifest changes):
+Optional local install/reinstall:
 
 ```bash
 flatpak install --user --reinstall --bundle ./io.github.hoursbooking.HoursBooking.flatpak
@@ -167,24 +172,20 @@ flatpak run io.github.hoursbooking.HoursBooking
 ```
 
 Tray note:
-Tray behavior in Flatpak relies on StatusNotifier over DBus. Depending on your desktop environment, a compatible tray/indicator host must be active.
+Flatpak tray behavior relies on StatusNotifier over DBus. Depending on your desktop environment, a compatible tray or indicator host must be active.
 
 Generated local packaging artifacts (for example `flatpak/publish/`, `flatpak/*.png`, and `flatpak/io.github.hoursbooking.HoursBooking.svg`) are intentionally ignored by `.gitignore` and should not be committed.
 
 ## Architecture
 
-- MVVM pattern with CommunityToolkit.Mvvm.
-- Clear separation between UI layer and business logic.
-- Testable core logic in `HoursBooking.Core`.
+- MVVM pattern with CommunityToolkit.Mvvm
+- Business logic isolated in `HoursBooking.Core`
+- UI and platform concerns isolated in `HoursBooking.App`
+- Unit and integration test coverage with NUnit
 
-## Current Limitations
+## Next Ideas
 
-- Settings persist across restarts; time segments currently do not.
-- Focus is currently day-based tracking (no built-in historical reporting yet).
-
-## Roadmap Ideas
-
-- Persistent daily booking history
-- CSV/PDF export
-- Weekly and monthly summaries
-- Holiday and target-time models
+- Graphical analytics for hours and segment patterns
+- Date-range filtering for exports
+- Monthly target comparison
+- Holiday and time-account integrations

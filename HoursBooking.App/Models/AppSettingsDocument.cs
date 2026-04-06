@@ -14,5 +14,7 @@ public sealed class AppSettingsDocument
 
     public bool HasSeenTrayMinimizeHint { get; set; }
 
+    public List<WorkSegment> WorkSegments { get; set; } = [];
+
     public BookingSettings BookingSettings { get; set; } = new();
 }
