@@ -56,6 +56,56 @@ Alle Tests starten:
 dotnet test HoursBooking.slnx
 ```
 
+## Flatpak unter Linux
+
+Du kannst die App lokal als Flatpak-Bundle bauen (ohne automatische Installation).
+
+### Voraussetzungen
+
+- `flatpak`
+- `flatpak-builder`
+- `dotnet` SDK 10
+- `magick` (ImageMagick)
+
+Flatpak Runtime/Sdk installieren:
+
+```bash
+flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+flatpak install -y flathub org.freedesktop.Platform//24.08 org.freedesktop.Sdk//24.08
+```
+
+### Build (ohne Installation)
+
+Aus dem Repository-Root:
+
+```bash
+./scripts/build-flatpak.sh
+```
+
+Das Skript erzeugt eine Bundle-Datei im Repository-Root:
+
+```text
+io.github.hoursbooking.HoursBooking.flatpak
+```
+
+Zusaetzlich werden lokale Build-Artefakte erzeugt (z. B. `flatpak/publish/`, `flatpak/*.png` und `flatpak/io.github.hoursbooking.HoursBooking.svg`).
+Diese sind in `.gitignore` eingetragen und sollen nicht versioniert werden.
+
+Optional installieren:
+
+```bash
+flatpak install --user --bundle ./io.github.hoursbooking.HoursBooking.flatpak
+```
+
+Danach starten mit:
+
+```bash
+flatpak run io.github.hoursbooking.HoursBooking
+```
+
+Hinweis zu Tray unter Flatpak:
+Die Tray-Funktion nutzt unter Linux StatusNotifier (DBus). Je nach Desktop-Umgebung muss ein kompatibler Tray/Indicator-Host aktiv sein.
+
 ## Bedienung
 
 ### Arbeitszeit buchen

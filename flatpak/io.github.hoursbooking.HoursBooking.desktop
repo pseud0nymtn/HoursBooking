@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=HoursBooking
+Comment=Track and book working time
+Exec=hoursbooking
+Icon=io.github.hoursbooking.HoursBooking
+Terminal=false
+Categories=Office;Utility;
+StartupNotify=true
