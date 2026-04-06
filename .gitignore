@@ -13,3 +13,10 @@ token.json
 *.secrets.json
 *.pfx
 *.pem
+
+# Flatpak / packaging build artifacts
+flatpak/publish/
+flatpak/*.png
+*.flatpak
+.flatpak-builder/
+.flatpak-repo/
