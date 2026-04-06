@@ -53,7 +53,8 @@ public partial class App : Application
             _localizer.LanguageChanged += OnLanguageChanged;
             var settingsStore = new JsonSettingsStore();
             var themeService = new AvaloniaThemeService();
-            _mainWindowViewModel = new MainWindowViewModel(calculator, settingsStore, themeService, _localizer);
+            var fileSaveDialogService = new AvaloniaFileSaveDialogService(() => _mainWindow);
+            _mainWindowViewModel = new MainWindowViewModel(calculator, settingsStore, themeService, _localizer, fileSaveDialogService);
             _mainWindowViewModel.PropertyChanged += OnMainWindowViewModelPropertyChanged;
 
             _mainWindow = new MainWindow

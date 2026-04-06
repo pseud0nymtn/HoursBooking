@@ -267,6 +267,89 @@
                                                    Foreground="{Binding AlertForeground}"/>
                                     </StackPanel>
                                 </Border>
+
+                                <Border CornerRadius="20"
+                                        Padding="16"
+                                        Background="{DynamicResource CardBackgroundBrush}"
+                                        BorderBrush="{DynamicResource HairlineBrush}"
+                                        BorderThickness="1"
+                                        BoxShadow="0 10 24 0 #12000000">
+                                    <StackPanel Spacing="12">
+                                        <TextBlock Text="{Binding WeeklyMetricsTitle}"
+                                                   FontSize="16"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource WindowForegroundBrush}"/>
+                                        <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="10">
+                                            <Border Grid.Column="0"
+                                                    CornerRadius="14"
+                                                    Padding="10"
+                                                    Background="{DynamicResource MetricOneBrush}"
+                                                    BorderBrush="{DynamicResource HairlineBrush}"
+                                                    BorderThickness="1">
+                                                <StackPanel Spacing="2">
+                                                    <TextBlock Text="{Binding WeeklyGrossLabel}"
+                                                               FontSize="11"
+                                                               Foreground="{DynamicResource SubtleTextBrush}"
+                                                               FontWeight="SemiBold"/>
+                                                    <TextBlock Text="{Binding WeeklyGrossWorkedText}"
+                                                               FontSize="18"
+                                                               FontWeight="Bold"/>
+                                                </StackPanel>
+                                            </Border>
+
+                                            <Border Grid.Column="1"
+                                                    CornerRadius="14"
+                                                    Padding="10"
+                                                    Background="{DynamicResource MetricThreeBrush}"
+                                                    BorderBrush="{DynamicResource HairlineBrush}"
+                                                    BorderThickness="1">
+                                                <StackPanel Spacing="2">
+                                                    <TextBlock Text="{Binding WeeklyNetLabel}"
+                                                               FontSize="11"
+                                                               Foreground="{DynamicResource SubtleTextBrush}"
+                                                               FontWeight="SemiBold"/>
+                                                    <TextBlock Text="{Binding WeeklyNetWorkedText}"
+                                                               FontSize="18"
+                                                               FontWeight="Bold"/>
+                                                </StackPanel>
+                                            </Border>
+
+                                            <Border Grid.Column="2"
+                                                    CornerRadius="14"
+                                                    Padding="10"
+                                                    Background="{DynamicResource MetricTwoBrush}"
+                                                    BorderBrush="{DynamicResource HairlineBrush}"
+                                                    BorderThickness="1">
+                                                <StackPanel Spacing="2">
+                                                    <TextBlock Text="{Binding WeeklyDesiredLabel}"
+                                                               FontSize="11"
+                                                               Foreground="{DynamicResource SubtleTextBrush}"
+                                                               FontWeight="SemiBold"/>
+                                                    <TextBlock Text="{Binding WeeklyDesiredText}"
+                                                               FontSize="18"
+                                                               FontWeight="Bold"/>
+                                                </StackPanel>
+                                            </Border>
+
+                                            <Border Grid.Column="3"
+                                                    CornerRadius="14"
+                                                    Padding="10"
+                                                    Background="{DynamicResource CardBackgroundBrush}"
+                                                    BorderBrush="{DynamicResource HairlineBrush}"
+                                                    BorderThickness="1">
+                                                <StackPanel Spacing="2">
+                                                    <TextBlock Text="{Binding WeeklyDifferenceLabel}"
+                                                               FontSize="11"
+                                                               Foreground="{DynamicResource SubtleTextBrush}"
+                                                               FontWeight="SemiBold"/>
+                                                    <TextBlock Text="{Binding WeeklyDifferenceStatus}"
+                                                               FontSize="18"
+                                                               FontWeight="Bold"/>
+                                                </StackPanel>
+                                            </Border>
+                                        </Grid>
+                                    </StackPanel>
+                                </Border>
                             </StackPanel>
                         </Border>
 
@@ -281,14 +364,36 @@
                                 <TextBlock Text="{Binding WorkSegmentsTitle}"
                                            FontSize="19"
                                            FontWeight="SemiBold"/>
-                                <Grid ColumnDefinitions="*,*,*,Auto"
+
+                                <Grid ColumnDefinitions="*,Auto,Auto"
+                                      ColumnSpacing="8"
+                                      Margin="0,0,0,2">
+                                    <TextBox Grid.Column="0"
+                                             Watermark="{Binding PendingCommentHint}"
+                                             MaxLength="280"
+                                             Text="{Binding PendingComment}"/>
+                                    <Button Grid.Column="1"
+                                            Content="{Binding ExportSegmentsText}"
+                                            Classes="secondaryAction"
+                                            Command="{Binding ExportSegmentsCommand}"/>
+                                    <Button Grid.Column="2"
+                                            Content="{Binding ClearSegmentsText}"
+                                            Classes="ghostAction"
+                                            Command="{Binding ClearAllSegmentsCommand}"/>
+                                </Grid>
+                                <TextBlock Text="{Binding PendingCommentLabel}"
+                                           Foreground="{DynamicResource SubtleTextBrush}"
+                                           FontSize="12"/>
+
+                                <Grid ColumnDefinitions="*,*,*,1.6*,Auto"
                                       ColumnSpacing="8"
                                       Margin="0,0,0,4"
                                       IsVisible="{Binding ShowSegmentTableLayout}">
                                     <TextBlock Grid.Column="0" Text="{Binding StartLabel}" FontWeight="SemiBold" Foreground="{DynamicResource SubtleTextBrush}"/>
                                     <TextBlock Grid.Column="1" Text="{Binding EndLabel}" FontWeight="SemiBold" Foreground="{DynamicResource SubtleTextBrush}"/>
                                     <TextBlock Grid.Column="2" Text="{Binding DurationLabel}" FontWeight="SemiBold" Foreground="{DynamicResource SubtleTextBrush}"/>
-                                    <TextBlock Grid.Column="3" Text="{Binding ActionLabel}" FontWeight="SemiBold" Foreground="{DynamicResource SubtleTextBrush}"/>
+                                    <TextBlock Grid.Column="3" Text="{Binding CommentLabel}" FontWeight="SemiBold" Foreground="{DynamicResource SubtleTextBrush}"/>
+                                    <TextBlock Grid.Column="4" Text="{Binding ActionLabel}" FontWeight="SemiBold" Foreground="{DynamicResource SubtleTextBrush}"/>
                                 </Grid>
                                 <ItemsControl ItemsSource="{Binding Segments}"
                                               IsVisible="{Binding ShowSegmentTableLayout}">
@@ -300,7 +405,7 @@
                                                     Background="{DynamicResource CardBackgroundBrush}"
                                                     BorderBrush="{DynamicResource HairlineBrush}"
                                                     BorderThickness="1">
-                                                <Grid ColumnDefinitions="*,*,*,Auto" ColumnSpacing="8">
+                                                <Grid ColumnDefinitions="*,*,*,1.6*,Auto" ColumnSpacing="8">
                                                     <TextBlock Grid.Column="0"
                                                                VerticalAlignment="Center"
                                                                Text="{Binding Start}"
@@ -321,7 +426,17 @@
                                                                VerticalAlignment="Center"
                                                                Text="{Binding Duration}"/>
 
-                                                    <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="6">
+                                                    <TextBlock Grid.Column="3"
+                                                               VerticalAlignment="Center"
+                                                               Text="{Binding Comment}"
+                                                               TextWrapping="Wrap"
+                                                               IsVisible="{Binding IsNotEditing}"/>
+                                                    <TextBox Grid.Column="3"
+                                                             Text="{Binding EditableComment}"
+                                                             MaxLength="280"
+                                                             IsVisible="{Binding IsEditing}"/>
+
+                                                    <StackPanel Grid.Column="4" Orientation="Horizontal" Spacing="6">
                                                         <Button Content="{ReflectionBinding DataContext.EditText, RelativeSource={RelativeSource AncestorType=Window}}"
                                                             Classes="secondaryAction"
                                                                 IsVisible="{Binding IsNotEditing}"
@@ -336,6 +451,11 @@
                                                             Classes="ghostAction"
                                                                 IsVisible="{Binding IsEditing}"
                                                                 Command="{ReflectionBinding DataContext.CancelSegmentEditCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                CommandParameter="{Binding .}"/>
+                                                        <Button Content="{ReflectionBinding DataContext.RemoveText, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                            Classes="ghostAction"
+                                                                IsVisible="{Binding IsNotEditing}"
+                                                                Command="{ReflectionBinding DataContext.RemoveSegmentCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                 CommandParameter="{Binding .}"/>
                                                     </StackPanel>
                                                 </Grid>
@@ -397,6 +517,19 @@
                                                         </StackPanel>
                                                     </Border>
 
+                                                    <StackPanel Spacing="4">
+                                                        <TextBlock Text="{ReflectionBinding DataContext.CommentLabel, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                   FontSize="12"
+                                                                   FontWeight="SemiBold"
+                                                                   Foreground="{DynamicResource SubtleTextBrush}"/>
+                                                        <TextBlock Text="{Binding Comment}"
+                                                                   TextWrapping="Wrap"
+                                                                   IsVisible="{Binding IsNotEditing}"/>
+                                                        <TextBox Text="{Binding EditableComment}"
+                                                                 MaxLength="280"
+                                                                 IsVisible="{Binding IsEditing}"/>
+                                                    </StackPanel>
+
                                                     <WrapPanel Orientation="Horizontal">
                                                         <Button Content="{ReflectionBinding DataContext.EditText, RelativeSource={RelativeSource AncestorType=Window}}"
                                                             Classes="secondaryAction"
@@ -415,6 +548,12 @@
                                                                 Margin="0,0,8,8"
                                                                 IsVisible="{Binding IsEditing}"
                                                                 Command="{ReflectionBinding DataContext.CancelSegmentEditCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                CommandParameter="{Binding .}"/>
+                                                        <Button Content="{ReflectionBinding DataContext.RemoveText, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                            Classes="ghostAction"
+                                                                Margin="0,0,8,8"
+                                                                IsVisible="{Binding IsNotEditing}"
+                                                                Command="{ReflectionBinding DataContext.RemoveSegmentCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                 CommandParameter="{Binding .}"/>
                                                     </WrapPanel>
                                                 </StackPanel>
@@ -478,6 +617,9 @@
 
                                 <TextBlock Text="{Binding DesiredWorkHoursLabel}"/>
                                 <NumericUpDown Minimum="0" Maximum="24" Increment="0.25" Value="{Binding DesiredWorkHours}"/>
+
+                                <TextBlock Text="{Binding WeeklyDesiredHoursLabel}"/>
+                                <NumericUpDown Minimum="0" Maximum="168" Increment="0.25" Value="{Binding WeeklyDesiredHours}"/>
 
                                 <CheckBox Content="{Binding CountStampedOutBreakLabel}"
                                           IsChecked="{Binding CountStampedOutTimeAsBreak}"/>

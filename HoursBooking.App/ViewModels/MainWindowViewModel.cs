@@ -1,4 +1,6 @@
 ﻿using System.Collections.ObjectModel;
+using System.Globalization;
+using System.Text;
 using Avalonia.Media;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -14,6 +16,7 @@ public partial class MainWindowViewModel : ViewModelBase
 {
     private readonly BookingCalculator _calculator;
     private readonly LocalizationService _localizer;
+    private readonly IFileSaveDialogService _fileSaveDialogService;
     private readonly ISettingsStore _settingsStore;
     private readonly IThemeService _themeService;
     private readonly DispatcherTimer _timer;
@@ -24,10 +27,16 @@ public partial class MainWindowViewModel : ViewModelBase
     private object[] _segmentEditMessageArguments = [];
     private string _segmentEditMessageKey = "SegmentEdit.SelectToAdjust";
 
-    public MainWindowViewModel(BookingCalculator calculator, ISettingsStore settingsStore, IThemeService themeService, LocalizationService localizationService)
+    public MainWindowViewModel(
+        BookingCalculator calculator,
+        ISettingsStore settingsStore,
+        IThemeService themeService,
+        LocalizationService localizationService,
+        IFileSaveDialogService fileSaveDialogService)
     {
         _calculator = calculator;
         _localizer = localizationService;
+        _fileSaveDialogService = fileSaveDialogService;
         _settingsStore = settingsStore;
         _themeService = themeService;
         _localizer.LanguageChanged += OnLanguageChanged;
@@ -122,10 +131,28 @@ public partial class MainWindowViewModel : ViewModelBase
     private string netWorkedText = "00:00";
 
     [ObservableProperty]
+    private string weeklyGrossWorkedText = "00:00";
+
+    [ObservableProperty]
+    private string weeklyNetWorkedText = "00:00";
+
+    [ObservableProperty]
+    private string weeklyDesiredText = "00:00";
+
+    [ObservableProperty]
+    private string weeklyDifferenceText = "00:00";
+
+    [ObservableProperty]
+    private string weeklyDifferenceStatus = string.Empty;
+
+    [ObservableProperty]
     private double maxWorkHours = 8.0;
 
     [ObservableProperty]
     private double desiredWorkHours = 7.5;
+
+    [ObservableProperty]
+    private double weeklyDesiredHours = 37.5;
 
     [ObservableProperty]
     private bool countStampedOutTimeAsBreak;
@@ -165,6 +192,9 @@ public partial class MainWindowViewModel : ViewModelBase
 
     [ObservableProperty]
     private string segmentEditMessage = string.Empty;
+
+    [ObservableProperty]
+    private string pendingComment = string.Empty;
 
     [ObservableProperty]
     private bool showWindowHeader = true;
@@ -262,6 +292,8 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public string ActionLabel => _localizer["Grid.Action"];
 
+    public string CommentLabel => _localizer["Grid.Comment"];
+
     public string CardDurationLabel => _localizer["Cards.Duration"];
 
     public string DisplaySettingsTitle => _localizer["Settings.Display"];
@@ -282,6 +314,8 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public string DesiredWorkHoursLabel => _localizer["Settings.DesiredWorkHours"];
 
+    public string WeeklyDesiredHoursLabel => _localizer["Settings.WeeklyDesiredHours"];
+
     public string CountStampedOutBreakLabel => _localizer["Settings.CountStampedOutBreak"];
 
     public string InfoThresholdLabel => _localizer["Settings.InfoThreshold"];
@@ -295,6 +329,24 @@ public partial class MainWindowViewModel : ViewModelBase
     public string BreakRulesFormatText => _localizer["Settings.BreakRulesFormat"];
 
     public string SaveSettingsText => _localizer["Settings.SaveNow"];
+
+    public string PendingCommentLabel => _localizer["Segments.PendingCommentLabel"];
+
+    public string PendingCommentHint => _localizer["Segments.PendingCommentHint"];
+
+    public string ExportSegmentsText => _localizer["Segments.Export"];
+
+    public string ClearSegmentsText => _localizer["Segments.ClearAll"];
+
+    public string WeeklyMetricsTitle => _localizer["Metrics.Weekly"];
+
+    public string WeeklyGrossLabel => _localizer["Metrics.WeeklyGross"];
+
+    public string WeeklyNetLabel => _localizer["Metrics.WeeklyNet"];
+
+    public string WeeklyDesiredLabel => _localizer["Metrics.WeeklyDesired"];
+
+    public string WeeklyDifferenceLabel => _localizer["Metrics.WeeklyDifference"];
 
     public async Task InitializeAsync()
     {
@@ -313,10 +365,25 @@ public partial class MainWindowViewModel : ViewModelBase
         SelectedTrayDisplayOption = TrayDisplayOptions.First(option => option.Value == TrayDisplayMode);
         MaxWorkHours = settings.MaxWorkHours;
         DesiredWorkHours = settings.DesiredWorkHours;
+        WeeklyDesiredHours = settings.WeeklyDesiredHours;
         CountStampedOutTimeAsBreak = settings.CountStampedOutTimeAsBreak;
         InfoThresholdMinutes = settings.InfoThresholdMinutes;
         WarningThresholdMinutes = settings.WarningThresholdMinutes;
         ErrorThresholdMinutes = settings.ErrorThresholdMinutes;
+
+        _segments.Clear();
+        foreach (var segment in document.WorkSegments.OrderBy(segment => segment.Start))
+        {
+            _segments.Add(new WorkSegment
+            {
+                Start = segment.Start,
+                End = segment.End,
+                Comment = NormalizeComment(segment.Comment)
+            });
+        }
+
+        _activeSegment = _segments.LastOrDefault(segment => !segment.End.HasValue);
+        IsClockedIn = _activeSegment is not null;
 
         BreakRules.Clear();
         foreach (var rule in settings.BreakRules.OrderBy(rule => rule.MinWorkedHours))
@@ -343,10 +410,16 @@ public partial class MainWindowViewModel : ViewModelBase
             return;
         }
 
-        _activeSegment = new WorkSegment { Start = DateTimeOffset.Now };
+        _activeSegment = new WorkSegment
+        {
+            Start = DateTimeOffset.Now,
+            Comment = NormalizeComment(PendingComment)
+        };
         _segments.Add(_activeSegment);
+        PendingComment = string.Empty;
         IsClockedIn = true;
         Recalculate();
+        _ = SaveSettingsAsync();
     }
 
     [RelayCommand(CanExecute = nameof(CanClockOut))]
@@ -361,6 +434,7 @@ public partial class MainWindowViewModel : ViewModelBase
         _activeSegment = null;
         IsClockedIn = false;
         Recalculate();
+        _ = SaveSettingsAsync();
     }
 
     [RelayCommand]
@@ -450,6 +524,15 @@ public partial class MainWindowViewModel : ViewModelBase
         }
     }
 
+    partial void OnWeeklyDesiredHoursChanged(double value)
+    {
+        Recalculate();
+        if (!_isInitializing)
+        {
+            _ = SaveSettingsAsync();
+        }
+    }
+
     partial void OnCountStampedOutTimeAsBreakChanged(bool value)
     {
         Recalculate();
@@ -486,6 +569,15 @@ public partial class MainWindowViewModel : ViewModelBase
         }
     }
 
+    partial void OnPendingCommentChanged(string value)
+    {
+        var normalized = NormalizeComment(value);
+        if (!string.Equals(value, normalized, StringComparison.Ordinal))
+        {
+            PendingComment = normalized;
+        }
+    }
+
     private AppSettingsDocument BuildSettingsDocument()
     {
         return new AppSettingsDocument
@@ -495,43 +587,58 @@ public partial class MainWindowViewModel : ViewModelBase
             MinimizeToTrayOnClose = MinimizeToTrayOnClose,
             TrayDisplayMode = TrayDisplayMode.Icon,
             HasSeenTrayMinimizeHint = HasSeenTrayMinimizeHint,
-            BookingSettings = new BookingSettings
-            {
-                MaxWorkHours = Math.Max(0.1, MaxWorkHours),
-                DesiredWorkHours = Math.Max(0, DesiredWorkHours),
-                CountStampedOutTimeAsBreak = CountStampedOutTimeAsBreak,
-                InfoThresholdMinutes = Math.Max(0, InfoThresholdMinutes),
-                WarningThresholdMinutes = Math.Max(0, WarningThresholdMinutes),
-                ErrorThresholdMinutes = Math.Max(0, ErrorThresholdMinutes),
-                BreakRules = BreakRules
-                    .Select(rule => new BreakRule
-                    {
-                        MinWorkedHours = Math.Max(0, rule.MinWorkedHours),
-                        DeductedBreakHours = Math.Max(0, rule.DeductedBreakHours)
-                    })
-                    .OrderBy(rule => rule.MinWorkedHours)
-                    .ToList()
-            }
+            WorkSegments = _segments
+                .Select(segment => new WorkSegment
+                {
+                    Start = segment.Start,
+                    End = segment.End,
+                    Comment = NormalizeComment(segment.Comment)
+                })
+                .ToList(),
+            BookingSettings = CreateCurrentBookingSettings()
+        };
+    }
+
+    private BookingSettings CreateCurrentBookingSettings()
+    {
+        return new BookingSettings
+        {
+            MaxWorkHours = Math.Max(0.1, MaxWorkHours),
+            DesiredWorkHours = Math.Max(0, DesiredWorkHours),
+            WeeklyDesiredHours = Math.Max(0, WeeklyDesiredHours),
+            CountStampedOutTimeAsBreak = CountStampedOutTimeAsBreak,
+            InfoThresholdMinutes = Math.Max(0, InfoThresholdMinutes),
+            WarningThresholdMinutes = Math.Max(0, WarningThresholdMinutes),
+            ErrorThresholdMinutes = Math.Max(0, ErrorThresholdMinutes),
+            BreakRules = BreakRules
+                .Select(rule => new BreakRule
+                {
+                    MinWorkedHours = Math.Max(0, rule.MinWorkedHours),
+                    DeductedBreakHours = Math.Max(0, rule.DeductedBreakHours)
+                })
+                .OrderBy(rule => rule.MinWorkedHours)
+                .ToList()
         };
     }
 
     private void Recalculate()
     {
-        var settings = BuildSettingsDocument().BookingSettings;
-        var gross = _calculator.GetGrossDuration(_segments, CurrentTime);
-        var deductedBreak = _calculator.GetEffectiveBreakDeduction(gross, settings.BreakRules, _segments, settings.CountStampedOutTimeAsBreak);
-        var net = _calculator.GetNetDuration(_segments, settings.BreakRules, CurrentTime, settings.CountStampedOutTimeAsBreak);
+        var settings = CreateCurrentBookingSettings();
+        var daySegments = GetCurrentDaySegments();
+        var gross = _calculator.GetGrossDuration(daySegments, CurrentTime);
+        var deductedBreak = _calculator.GetEffectiveBreakDeduction(gross, settings.BreakRules, daySegments, settings.CountStampedOutTimeAsBreak);
+        var net = _calculator.GetNetDuration(daySegments, settings.BreakRules, CurrentTime, settings.CountStampedOutTimeAsBreak);
 
         GrossWorkedText = FormatDuration(gross);
         DeductedBreakText = FormatDuration(deductedBreak);
         NetWorkedText = FormatDuration(net);
         ActiveClockInText = _activeSegment is not null
             ? _activeSegment.Start.ToString("HH:mm")
-            : _segments.Count == 0
+            : daySegments.Count == 0
                 ? _localizer["ClockStatus.NotStarted"]
-                : _segments.MinBy(segment => segment.Start)?.Start.ToString("HH:mm") ?? _localizer["ClockStatus.NotStarted"];
+                : daySegments.MinBy(segment => segment.Start)?.Start.ToString("HH:mm") ?? _localizer["ClockStatus.NotStarted"];
 
-        var targetReachedAt = _calculator.GetTargetReachedAt(_segments, settings.BreakRules, settings.DesiredWorkHours, CurrentTime, settings.CountStampedOutTimeAsBreak);
+        var targetReachedAt = _calculator.GetTargetReachedAt(daySegments, settings.BreakRules, settings.DesiredWorkHours, CurrentTime, settings.CountStampedOutTimeAsBreak);
         if (settings.DesiredWorkHours <= 0)
         {
             DesiredEndTimeText = _localizer["DesiredEnd.Disabled"];
@@ -545,7 +652,8 @@ public partial class MainWindowViewModel : ViewModelBase
             DesiredEndTimeText = _localizer.Format("DesiredEnd.ReachesAt", targetReachedAt);
         }
 
-        RefreshSegments();
+        RecalculateWeeklyMetrics(settings);
+        RefreshSegments(_segments);
 
         var alert = _calculator.EvaluateAlert(net, settings);
         AlertLevel = alert.Level;
@@ -553,14 +661,15 @@ public partial class MainWindowViewModel : ViewModelBase
         ApplyAlertStyle(alert.Level);
     }
 
-    private void RefreshSegments()
+    private void RefreshSegments(IEnumerable<WorkSegment> sourceSegments)
     {
         var existingRows = Segments
             .Where(item => item.Segment is not null)
             .ToDictionary(item => item.Segment!, item => item);
-        var desiredRows = new List<WorkSegmentItemViewModel>(_segments.Count);
+        var orderedSegments = sourceSegments.OrderBy(segment => segment.Start).ToList();
+        var desiredRows = new List<WorkSegmentItemViewModel>(orderedSegments.Count);
 
-        foreach (var segment in _segments)
+        foreach (var segment in orderedSegments)
         {
             var end = segment.End ?? CurrentTime;
             var duration = end - segment.Start;
@@ -579,8 +688,9 @@ public partial class MainWindowViewModel : ViewModelBase
 
             if (!row.IsEditing)
             {
-                row.Start = segment.Start.ToString("HH:mm");
-                row.End = segment.End.HasValue ? segment.End.Value.ToString("HH:mm") : _localizer["SegmentStatus.Running"];
+                row.Start = FormatSegmentDateTime(segment.Start);
+                row.End = segment.End.HasValue ? FormatSegmentDateTime(segment.End.Value) : _localizer["SegmentStatus.Running"];
+                row.Comment = segment.Comment;
             }
 
             row.Duration = FormatDuration(duration);
@@ -634,6 +744,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
         item.EditableStartTime = item.Segment.Start.TimeOfDay;
         item.EditableEndTime = item.Segment.End?.TimeOfDay;
+        item.EditableComment = item.Segment.Comment;
         item.IsEditing = true;
         SetSegmentEditMessage("SegmentEdit.AdjustAndApply");
     }
@@ -649,8 +760,9 @@ public partial class MainWindowViewModel : ViewModelBase
         item.IsEditing = false;
         if (item.Segment is not null)
         {
-            item.Start = item.Segment.Start.ToString("HH:mm");
-            item.End = item.Segment.End.HasValue ? item.Segment.End.Value.ToString("HH:mm") : _localizer["SegmentStatus.Running"];
+            item.Start = FormatSegmentDateTime(item.Segment.Start);
+            item.End = item.Segment.End.HasValue ? FormatSegmentDateTime(item.Segment.End.Value) : _localizer["SegmentStatus.Running"];
+            item.Comment = item.Segment.Comment;
         }
 
         SetSegmentEditMessage("SegmentEdit.SelectToAdjust");
@@ -701,12 +813,99 @@ public partial class MainWindowViewModel : ViewModelBase
 
         editedSegment.Start = updatedStart;
         editedSegment.End = updatedEnd;
+        editedSegment.Comment = NormalizeComment(item.EditableComment);
 
         _segments.Sort((left, right) => left.Start.CompareTo(right.Start));
         item.IsEditing = false;
         SetSegmentEditMessage("SegmentEdit.Updated");
         Recalculate();
         _ = SaveSettingsAsync();
+    }
+
+    [RelayCommand]
+    private void RemoveSegment(WorkSegmentItemViewModel? item)
+    {
+        if (item?.Segment is null)
+        {
+            return;
+        }
+
+        var removedActive = ReferenceEquals(_activeSegment, item.Segment);
+        _segments.Remove(item.Segment);
+        if (removedActive)
+        {
+            _activeSegment = null;
+            IsClockedIn = false;
+        }
+
+        SetSegmentEditMessage("SegmentEdit.Removed");
+        Recalculate();
+        _ = SaveSettingsAsync();
+    }
+
+    [RelayCommand]
+    private void ClearAllSegments()
+    {
+        if (_segments.Count == 0)
+        {
+            SetSegmentEditMessage("SegmentList.AlreadyEmpty");
+            return;
+        }
+
+        _segments.Clear();
+        _activeSegment = null;
+        IsClockedIn = false;
+        SetSegmentEditMessage("SegmentList.Cleared");
+        Recalculate();
+        _ = SaveSettingsAsync();
+    }
+
+    [RelayCommand]
+    private async Task ExportSegments()
+    {
+        if (_segments.Count == 0)
+        {
+            SetSegmentEditMessage("SegmentList.ExportEmpty");
+            return;
+        }
+
+        var timestamp = DateTimeOffset.Now.ToString("yyyyMMdd-HHmmss", CultureInfo.InvariantCulture);
+        var exportFilePath = await _fileSaveDialogService.PickCsvSavePathAsync($"segments-{timestamp}.csv");
+        if (string.IsNullOrWhiteSpace(exportFilePath))
+        {
+            SetSegmentEditMessage("SegmentList.ExportCanceled");
+            return;
+        }
+
+        if (!string.Equals(Path.GetExtension(exportFilePath), ".csv", StringComparison.OrdinalIgnoreCase))
+        {
+            exportFilePath += ".csv";
+        }
+
+        var csv = new StringBuilder();
+        csv.AppendLine("start,end,duration_minutes,comment");
+
+        foreach (var segment in _segments.OrderBy(segment => segment.Start))
+        {
+            var end = segment.End;
+            var duration = (end ?? CurrentTime) - segment.Start;
+            if (duration < TimeSpan.Zero)
+            {
+                duration = TimeSpan.Zero;
+            }
+
+            csv.Append(EscapeCsv(segment.Start.ToString("yyyy-MM-dd HH:mm:ss zzz", CultureInfo.InvariantCulture)));
+            csv.Append(',');
+            csv.Append(EscapeCsv(end?.ToString("yyyy-MM-dd HH:mm:ss zzz", CultureInfo.InvariantCulture) ?? string.Empty));
+            csv.Append(',');
+            csv.Append(((int)Math.Round(duration.TotalMinutes, MidpointRounding.AwayFromZero)).ToString(CultureInfo.InvariantCulture));
+            csv.Append(',');
+            csv.Append(EscapeCsv(segment.Comment));
+            csv.AppendLine();
+        }
+
+        File.WriteAllText(exportFilePath, csv.ToString(), Encoding.UTF8);
+        SetSegmentEditMessage("SegmentList.ExportSaved", exportFilePath);
     }
 
     private void ApplyAlertStyle(AlertLevel level)
@@ -735,6 +934,111 @@ public partial class MainWindowViewModel : ViewModelBase
     private static string FormatDuration(TimeSpan duration)
     {
         return $"{(int)duration.TotalHours:D2}:{duration.Minutes:D2}";
+    }
+
+    private List<WorkSegment> GetCurrentDaySegments()
+    {
+        var currentDay = CurrentTime.LocalDateTime.Date;
+        return _segments
+            .Where(segment => segment.Start.ToLocalTime().Date == currentDay)
+            .OrderBy(segment => segment.Start)
+            .ToList();
+    }
+
+    private List<WorkSegment> GetCurrentWeekSegments()
+    {
+        var currentDate = CurrentTime.LocalDateTime.Date;
+        // Get the start of the week (Monday)
+        var dayOfWeek = currentDate.DayOfWeek;
+        var daysUntilMonday = dayOfWeek == DayOfWeek.Sunday ? 6 : (int)dayOfWeek - 1;
+        var weekStart = currentDate.AddDays(-daysUntilMonday);
+        var weekEnd = weekStart.AddDays(6);
+
+        return _segments
+            .Where(segment => 
+            {
+                var segmentDate = segment.Start.ToLocalTime().Date;
+                return segmentDate >= weekStart && segmentDate <= weekEnd;
+            })
+            .OrderBy(segment => segment.Start)
+            .ToList();
+    }
+
+    private void RecalculateWeeklyMetrics(BookingSettings settings)
+    {
+        var weekSegments = GetCurrentWeekSegments();
+        var weeklyGross = _calculator.GetGrossDuration(weekSegments, CurrentTime);
+        
+        var weeklyNet = TimeSpan.Zero;
+        var dailySegments = new Dictionary<DateTime, List<WorkSegment>>();
+        
+        // Group segments by day
+        foreach (var segment in weekSegments)
+        {
+            var date = segment.Start.ToLocalTime().Date;
+            if (!dailySegments.ContainsKey(date))
+            {
+                dailySegments[date] = [];
+            }
+            dailySegments[date].Add(segment);
+        }
+        
+        // Calculate net for each day and sum up
+        foreach (var daySegments in dailySegments.Values)
+        {
+            var dayNet = _calculator.GetNetDuration(daySegments, settings.BreakRules, CurrentTime, settings.CountStampedOutTimeAsBreak);
+            weeklyNet += dayNet;
+        }
+
+        var weeklyDesired = TimeSpan.FromHours(Math.Max(0, settings.WeeklyDesiredHours));
+        var difference = weeklyNet - weeklyDesired;
+
+        WeeklyGrossWorkedText = FormatDuration(weeklyGross);
+        WeeklyNetWorkedText = FormatDuration(weeklyNet);
+        WeeklyDesiredText = FormatDuration(weeklyDesired);
+        WeeklyDifferenceText = FormatDuration(TimeSpan.FromTicks(Math.Abs(difference.Ticks)));
+        
+        // Set status: positive = surplus, negative = deficit
+        if (difference > TimeSpan.Zero)
+        {
+            WeeklyDifferenceStatus = $"+{FormatDuration(difference)}";
+        }
+        else if (difference < TimeSpan.Zero)
+        {
+            WeeklyDifferenceStatus = $"-{FormatDuration(TimeSpan.FromTicks(Math.Abs(difference.Ticks)))}";
+        }
+        else
+        {
+            WeeklyDifferenceStatus = "00:00";
+        }
+    }
+
+    private static string NormalizeComment(string? comment)
+    {
+        if (string.IsNullOrWhiteSpace(comment))
+        {
+            return string.Empty;
+        }
+
+        var trimmed = comment.Trim();
+        return trimmed.Length <= WorkSegmentItemViewModel.MaxCommentLength
+            ? trimmed
+            : trimmed[..WorkSegmentItemViewModel.MaxCommentLength];
+    }
+
+    private static string EscapeCsv(string value)
+    {
+        if (!value.Contains(',') && !value.Contains('"') && !value.Contains('\n') && !value.Contains('\r'))
+        {
+            return value;
+        }
+
+        return $"\"{value.Replace("\"", "\"\"")}\"";
+    }
+
+    private string FormatSegmentDateTime(DateTimeOffset value)
+    {
+        return value.ToLocalTime().ToString("dd.MM HH:mm", _localizer.CurrentCulture);
     }
 
     public void UpdateLayoutMode(double windowWidth)
@@ -854,6 +1158,7 @@ public partial class MainWindowViewModel : ViewModelBase
         OnPropertyChanged(nameof(EndLabel));
         OnPropertyChanged(nameof(DurationLabel));
         OnPropertyChanged(nameof(ActionLabel));
+        OnPropertyChanged(nameof(CommentLabel));
         OnPropertyChanged(nameof(CardDurationLabel));
         OnPropertyChanged(nameof(DisplaySettingsTitle));
         OnPropertyChanged(nameof(ThemeLabel));
@@ -864,6 +1169,7 @@ public partial class MainWindowViewModel : ViewModelBase
         OnPropertyChanged(nameof(AlertLevelsTitle));
         OnPropertyChanged(nameof(MaxWorkHoursLabel));
         OnPropertyChanged(nameof(DesiredWorkHoursLabel));
+        OnPropertyChanged(nameof(WeeklyDesiredHoursLabel));
         OnPropertyChanged(nameof(CountStampedOutBreakLabel));
         OnPropertyChanged(nameof(InfoThresholdLabel));
         OnPropertyChanged(nameof(WarningThresholdLabel));
@@ -871,6 +1177,15 @@ public partial class MainWindowViewModel : ViewModelBase
         OnPropertyChanged(nameof(BreakRulesTitle));
         OnPropertyChanged(nameof(BreakRulesFormatText));
         OnPropertyChanged(nameof(SaveSettingsText));
+        OnPropertyChanged(nameof(PendingCommentLabel));
+        OnPropertyChanged(nameof(PendingCommentHint));
+        OnPropertyChanged(nameof(ExportSegmentsText));
+        OnPropertyChanged(nameof(ClearSegmentsText));
+        OnPropertyChanged(nameof(WeeklyMetricsTitle));
+        OnPropertyChanged(nameof(WeeklyGrossLabel));
+        OnPropertyChanged(nameof(WeeklyNetLabel));
+        OnPropertyChanged(nameof(WeeklyDesiredLabel));
+        OnPropertyChanged(nameof(WeeklyDifferenceLabel));
         OnPropertyChanged(nameof(CurrentDayLabel));
     }
 

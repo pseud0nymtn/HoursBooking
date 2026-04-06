@@ -6,6 +6,8 @@ public sealed class BookingSettings
 
     public double DesiredWorkHours { get; set; } = 7.5;
 
+    public double WeeklyDesiredHours { get; set; } = 37.5;
+
     public bool CountStampedOutTimeAsBreak { get; set; }
 
     public double InfoThresholdMinutes { get; set; } = 60;
