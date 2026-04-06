@@ -13,3 +13,11 @@ token.json
 *.secrets.json
 *.pfx
 *.pem
+
+# Flatpak / packaging build artifacts
+flatpak/publish/
+flatpak/*.png
+flatpak/io.github.hoursbooking.HoursBooking.svg
+*.flatpak
+.flatpak-builder/
+.flatpak-repo/

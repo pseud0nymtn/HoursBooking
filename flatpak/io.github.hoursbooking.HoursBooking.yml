@@ -1,0 +1,44 @@
+app-id: io.github.hoursbooking.HoursBooking
+runtime: org.freedesktop.Platform
+runtime-version: "24.08"
+sdk: org.freedesktop.Sdk
+command: hoursbooking
+
+finish-args:
+  - --share=ipc
+  - --socket=x11
+  - --socket=wayland
+  - --socket=session-bus
+  - --device=dri
+  - --env=AVALONIA_ENABLE_WAYLAND=1
+  - --talk-name=org.kde.StatusNotifierWatcher
+
+modules:
+  - name: hoursbooking
+    buildsystem: simple
+    build-commands:
+      - install -Dm755 hoursbooking /app/bin/hoursbooking
+      - install -Dm755 HoursBooking.App /app/bin/HoursBooking.App
+      - install -Dm644 io.github.hoursbooking.HoursBooking.desktop /app/share/applications/io.github.hoursbooking.HoursBooking.desktop
+      - install -Dm644 io.github.hoursbooking.HoursBooking.metainfo.xml /app/share/metainfo/io.github.hoursbooking.HoursBooking.metainfo.xml
+      - install -Dm644 io.github.hoursbooking.HoursBooking.128.png /app/share/icons/hicolor/128x128/apps/io.github.hoursbooking.HoursBooking.png
+      - install -Dm644 io.github.hoursbooking.HoursBooking.256.png /app/share/icons/hicolor/256x256/apps/io.github.hoursbooking.HoursBooking.png
+      - install -Dm644 io.github.hoursbooking.HoursBooking.512.png /app/share/icons/hicolor/512x512/apps/io.github.hoursbooking.HoursBooking.png
+      - install -Dm644 io.github.hoursbooking.HoursBooking.svg /app/share/icons/hicolor/scalable/apps/io.github.hoursbooking.HoursBooking.svg
+    sources:
+      - type: dir
+        path: publish
+      - type: file
+        path: hoursbooking
+      - type: file
+        path: io.github.hoursbooking.HoursBooking.desktop
+      - type: file
+        path: io.github.hoursbooking.HoursBooking.metainfo.xml
+      - type: file
+        path: io.github.hoursbooking.HoursBooking.128.png
+      - type: file
+        path: io.github.hoursbooking.HoursBooking.256.png
+      - type: file
+        path: io.github.hoursbooking.HoursBooking.512.png
+      - type: file
+        path: io.github.hoursbooking.HoursBooking.svg
