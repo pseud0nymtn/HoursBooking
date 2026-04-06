@@ -17,14 +17,15 @@
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
-    <ScrollViewer HorizontalScrollBarVisibility="Auto"
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled"
                   VerticalScrollBarVisibility="Auto">
         <Grid RowDefinitions="Auto,*" Margin="20">
         <Border Grid.Row="0"
                 CornerRadius="14"
                 Padding="18"
                 Margin="0,0,0,16"
-            Background="{DynamicResource HeaderBackgroundBrush}">
+            Background="{DynamicResource HeaderBackgroundBrush}"
+                IsVisible="{Binding ShowWindowHeader}">
             <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" RowSpacing="8">
                 <TextBlock Grid.Row="0"
                            Grid.Column="0"
@@ -53,7 +54,7 @@
             </Grid>
         </Border>
 
-        <TabControl Grid.Row="1">
+        <TabControl x:Name="MainTabs" Grid.Row="1">
             <TabItem Header="Buchung">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Spacing="16" Margin="0,12,0,0">
@@ -61,22 +62,47 @@
                             <StackPanel Spacing="14">
                                 <TextBlock Text="Buchung"
                                            FontSize="20"
-                                           FontWeight="SemiBold"/>
+                                           FontWeight="SemiBold"
+                                           IsVisible="{Binding ShowWindowHeader}"/>
 
-                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                <WrapPanel Orientation="Horizontal" ItemWidth="150">
                                     <Button Name="ClockInButton"
                                             Content="Einstempeln"
                                             Width="150"
                                             Height="40"
+                                        Margin="0,0,10,10"
                                             Command="{Binding ClockInCommand}"/>
                                     <Button Name="ClockOutButton"
                                             Content="Ausstempeln"
                                             Width="150"
                                             Height="40"
+                                        Margin="0,0,10,10"
                                             Command="{Binding ClockOutCommand}"/>
-                                </StackPanel>
+                                </WrapPanel>
 
-                                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
+                                <Border CornerRadius="10"
+                                        Padding="12"
+                                        Background="{DynamicResource MetricThreeBrush}"
+                                        IsVisible="{Binding ShowClockInSummary}">
+                                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                                        <StackPanel Grid.Column="0" Spacing="4">
+                                            <TextBlock Text="Eingestempelt"
+                                                       FontWeight="SemiBold"/>
+                                            <TextBlock Text="{Binding ActiveClockInText}"
+                                                       FontSize="25"
+                                                       FontWeight="Bold"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="1" Spacing="4">
+                                            <TextBlock Text="Netto"
+                                                       FontWeight="SemiBold"/>
+                                            <TextBlock Text="{Binding NetWorkedText}"
+                                                       FontSize="25"
+                                                       FontWeight="Bold"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+
+                                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10" IsVisible="{Binding ShowDetailedMetrics}">
                                     <Border Grid.Column="0" CornerRadius="10" Padding="12" Background="{DynamicResource MetricOneBrush}">
                                         <StackPanel Spacing="4">
                                             <TextBlock Text="Brutto" FontWeight="SemiBold"/>
@@ -101,7 +127,8 @@
 
                                 <Border CornerRadius="10"
                                         Padding="12"
-                                        Background="{Binding AlertBackground}">
+                                        Background="{Binding AlertBackground}"
+                                        IsVisible="{Binding ShowAlertPanel}">
                                     <StackPanel Spacing="6">
                                         <TextBlock Text="{Binding AlertMessage}"
                                                    FontSize="15"
@@ -116,7 +143,10 @@
                             </StackPanel>
                         </Border>
 
-                        <Border CornerRadius="12" Padding="16" Background="{DynamicResource CardMutedBackgroundBrush}">
+                        <Border CornerRadius="12"
+                                Padding="16"
+                                Background="{DynamicResource CardMutedBackgroundBrush}"
+                                IsVisible="{Binding ShowSegmentsSection}">
                             <StackPanel Spacing="10">
                                 <TextBlock Text="Arbeitsabschnitte"
                                            FontSize="20"
@@ -175,7 +205,7 @@
                 </ScrollViewer>
             </TabItem>
 
-            <TabItem Header="Einstellungen">
+            <TabItem Header="Einstellungen" IsVisible="{Binding ShowSettingsTab}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Spacing="16" Margin="0,12,0,0">
                         <Border CornerRadius="12" Padding="16" Background="{DynamicResource SettingsCardOneBrush}">

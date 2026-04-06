@@ -109,6 +109,27 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty]
     private string segmentEditMessage = "Arbeitsabschnitt auswaehlen, um Zeiten anzupassen.";
 
+    [ObservableProperty]
+    private bool showWindowHeader = true;
+
+    [ObservableProperty]
+    private bool showSettingsTab = true;
+
+    [ObservableProperty]
+    private bool showSegmentsSection = true;
+
+    [ObservableProperty]
+    private bool showDetailedMetrics = true;
+
+    [ObservableProperty]
+    private bool showAlertPanel = true;
+
+    [ObservableProperty]
+    private bool showClockInSummary;
+
+    [ObservableProperty]
+    private string activeClockInText = "Nicht eingestempelt";
+
     public string CurrentDayLabel => CurrentTime.ToString("dddd, dd.MM.yyyy");
 
     public string CurrentTimeLabel => CurrentTime.ToString("HH:mm:ss");
@@ -316,6 +337,9 @@ public partial class MainWindowViewModel : ViewModelBase
         GrossWorkedText = FormatDuration(gross);
         DeductedBreakText = FormatDuration(deductedBreak);
         NetWorkedText = FormatDuration(net);
+        ActiveClockInText = _activeSegment is null
+            ? "Nicht eingestempelt"
+            : _activeSegment.Start.ToString("HH:mm");
 
         var targetReachedAt = _calculator.GetTargetReachedAt(_segments, settings.BreakRules, settings.DesiredWorkHours, CurrentTime, settings.CountStampedOutTimeAsBreak);
         if (settings.DesiredWorkHours <= 0)
@@ -521,5 +545,15 @@ public partial class MainWindowViewModel : ViewModelBase
     private static string FormatDuration(TimeSpan duration)
     {
         return $"{(int)duration.TotalHours:D2}:{duration.Minutes:D2}";
+    }
+
+    public void UpdateLayoutMode(double windowWidth)
+    {
+        ShowWindowHeader = windowWidth >= 700;
+        ShowSettingsTab = windowWidth >= 1024;
+        ShowSegmentsSection = windowWidth >= 860;
+        ShowDetailedMetrics = windowWidth >= 700;
+        ShowAlertPanel = windowWidth >= 860;
+        ShowClockInSummary = windowWidth < 700;
     }
 }
