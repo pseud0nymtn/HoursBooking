@@ -57,6 +57,11 @@ public partial class MainWindowViewModel : ViewModelBase
         BreakRules = new ObservableCollection<BreakRuleViewModel>();
         LanguageOptions = new ObservableCollection<LanguageOption>();
         Segments = new ObservableCollection<WorkSegmentItemViewModel>();
+        WeeklyDayAnalysisItems = new ObservableCollection<WeeklyDayAnalysisItemViewModel>();
+        WeeklyTrendPoints = new ObservableCollection<WeeklyTrendPointItemViewModel>();
+        Booking = new BookingViewModel(this);
+        WeeklyAnalysis = new WeeklyAnalysisViewModel(calculator, localizationService);
+        Settings = new SettingsViewModel(this);
         ThemeOptions = new ObservableCollection<LocalizedOption<ThemeMode>>
         {
             new() { Value = ThemeMode.System },
@@ -91,6 +96,16 @@ public partial class MainWindowViewModel : ViewModelBase
     public ObservableCollection<LanguageOption> LanguageOptions { get; }
 
     public ObservableCollection<WorkSegmentItemViewModel> Segments { get; }
+
+    public ObservableCollection<WeeklyDayAnalysisItemViewModel> WeeklyDayAnalysisItems { get; }
+
+    public ObservableCollection<WeeklyTrendPointItemViewModel> WeeklyTrendPoints { get; }
+
+    public BookingViewModel Booking { get; }
+
+    public WeeklyAnalysisViewModel WeeklyAnalysis { get; }
+
+    public SettingsViewModel Settings { get; }
 
     public ObservableCollection<LocalizedOption<ThemeMode>> ThemeOptions { get; }
 
@@ -144,6 +159,34 @@ public partial class MainWindowViewModel : ViewModelBase
 
     [ObservableProperty]
     private string weeklyDifferenceStatus = string.Empty;
+
+    [ObservableProperty]
+    private string weeklyAveragePerWorkedDayText = "00:00";
+
+    [ObservableProperty]
+    private string weeklyBestDayText = "-";
+
+    [ObservableProperty]
+    private string weeklyTargetReachedDaysText = "0 / 5";
+
+    [ObservableProperty]
+    private string weeklyLongestBreakText = "00:00";
+
+    [ObservableProperty]
+    private bool hasWeeklyAnalysisData;
+
+    [ObservableProperty]
+    private bool showWeeklyNoData = true;
+
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(ShowNextWeekCommand))]
+    private int selectedWeekOffset;
+
+    [ObservableProperty]
+    private string selectedWeekRangeText = string.Empty;
+
+    [ObservableProperty]
+    private string weeklyTrendPolylinePoints = string.Empty;
 
     [ObservableProperty]
     private double maxWorkHours = 8.0;
@@ -348,6 +391,28 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public string WeeklyDifferenceLabel => _localizer["Metrics.WeeklyDifference"];
 
+    public string WeeklyAnalysisTitle => _localizer["Analytics.WeeklyTitle"];
+
+    public string WeeklyChartTitle => _localizer["Analytics.ChartTitle"];
+
+    public string WeeklyInsightsTitle => _localizer["Analytics.InsightsTitle"];
+
+    public string WeeklyAveragePerWorkedDayLabel => _localizer["Analytics.AveragePerWorkedDay"];
+
+    public string WeeklyBestDayLabel => _localizer["Analytics.BestDay"];
+
+    public string WeeklyTargetReachedDaysLabel => _localizer["Analytics.TargetReachedDays"];
+
+    public string WeeklyLongestBreakLabel => _localizer["Analytics.LongestBreak"];
+
+    public string WeeklyNoDataText => _localizer["Analytics.NoData"];
+
+    public string PreviousWeekText => _localizer["Analytics.PreviousWeek"];
+
+    public string NextWeekText => _localizer["Analytics.NextWeek"];
+
+    public string WeeklyTrendTitle => _localizer["Analytics.TrendTitle"];
+
     public async Task InitializeAsync()
     {
         _isInitializing = true;
@@ -464,6 +529,23 @@ public partial class MainWindowViewModel : ViewModelBase
     }
 
     [RelayCommand]
+    private void ShowPreviousWeek()
+    {
+        SelectedWeekOffset--;
+    }
+
+    [RelayCommand(CanExecute = nameof(CanShowNextWeek))]
+    private void ShowNextWeek()
+    {
+        if (!CanShowNextWeek())
+        {
+            return;
+        }
+
+        SelectedWeekOffset++;
+    }
+
+    [RelayCommand]
     private async Task SaveSettingsAsync()
     {
         var document = BuildSettingsDocument();
@@ -473,6 +555,8 @@ public partial class MainWindowViewModel : ViewModelBase
     private bool CanClockIn() => !IsClockedIn;
 
     private bool CanClockOut() => IsClockedIn;
+
+    private bool CanShowNextWeek() => SelectedWeekOffset < 0;
 
     private void OnRuleChanged()
     {
@@ -531,6 +615,11 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             _ = SaveSettingsAsync();
         }
+    }
+
+    partial void OnSelectedWeekOffsetChanged(int value)
+    {
+        Recalculate();
     }
 
     partial void OnCountStampedOutTimeAsBreakChanged(bool value)
@@ -652,7 +741,7 @@ public partial class MainWindowViewModel : ViewModelBase
             DesiredEndTimeText = _localizer.Format("DesiredEnd.ReachesAt", targetReachedAt);
         }
 
-        RecalculateWeeklyMetrics(settings);
+        WeeklyAnalysis.Update(_segments, CurrentTime, settings);
         RefreshSegments(_segments);
 
         var alert = _calculator.EvaluateAlert(net, settings);
@@ -947,11 +1036,12 @@ public partial class MainWindowViewModel : ViewModelBase
 
     private List<WorkSegment> GetCurrentWeekSegments()
     {
-        var currentDate = CurrentTime.LocalDateTime.Date;
-        // Get the start of the week (Monday)
-        var dayOfWeek = currentDate.DayOfWeek;
-        var daysUntilMonday = dayOfWeek == DayOfWeek.Sunday ? 6 : (int)dayOfWeek - 1;
-        var weekStart = currentDate.AddDays(-daysUntilMonday);
+        var weekStart = GetWeekStartForOffset(SelectedWeekOffset);
+        return GetWeekSegments(weekStart);
+    }
+
+    private List<WorkSegment> GetWeekSegments(DateTime weekStart)
+    {
         var weekEnd = weekStart.AddDays(6);
 
         return _segments
@@ -964,14 +1054,29 @@ public partial class MainWindowViewModel : ViewModelBase
             .ToList();
     }
 
+    private DateTime GetCurrentWeekStart()
+    {
+        var currentDate = CurrentTime.LocalDateTime.Date;
+        var dayOfWeek = currentDate.DayOfWeek;
+        var daysUntilMonday = dayOfWeek == DayOfWeek.Sunday ? 6 : (int)dayOfWeek - 1;
+        return currentDate.AddDays(-daysUntilMonday);
+    }
+
+    private DateTime GetWeekStartForOffset(int weekOffset)
+    {
+        return GetCurrentWeekStart().AddDays(weekOffset * 7);
+    }
+
     private void RecalculateWeeklyMetrics(BookingSettings settings)
     {
         var weekSegments = GetCurrentWeekSegments();
         var weeklyGross = _calculator.GetGrossDuration(weekSegments, CurrentTime);
-        
+        var weekStart = GetWeekStartForOffset(SelectedWeekOffset);
+        var weekEnd = weekStart.AddDays(6);
+
         var weeklyNet = TimeSpan.Zero;
         var dailySegments = new Dictionary<DateTime, List<WorkSegment>>();
-        
+
         // Group segments by day
         foreach (var segment in weekSegments)
         {
@@ -982,7 +1087,7 @@ public partial class MainWindowViewModel : ViewModelBase
             }
             dailySegments[date].Add(segment);
         }
-        
+
         // Calculate net for each day and sum up
         foreach (var daySegments in dailySegments.Values)
         {
@@ -997,7 +1102,8 @@ public partial class MainWindowViewModel : ViewModelBase
         WeeklyNetWorkedText = FormatDuration(weeklyNet);
         WeeklyDesiredText = FormatDuration(weeklyDesired);
         WeeklyDifferenceText = FormatDuration(TimeSpan.FromTicks(Math.Abs(difference.Ticks)));
-        
+        SelectedWeekRangeText = _localizer.Format("Analytics.WeekRange", weekStart, weekEnd);
+
         // Set status: positive = surplus, negative = deficit
         if (difference > TimeSpan.Zero)
         {
@@ -1011,6 +1117,153 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             WeeklyDifferenceStatus = "00:00";
         }
+
+        RecalculateWeeklyAnalytics(settings, weekStart, dailySegments);
+        RecalculateWeeklyTrend(settings);
+    }
+
+    private void RecalculateWeeklyTrend(BookingSettings settings)
+    {
+        WeeklyTrendPoints.Clear();
+
+        const int trendWeeks = 8;
+        var startOffset = SelectedWeekOffset - (trendWeeks - 1);
+        var totals = new List<double>(trendWeeks);
+
+        for (var offset = startOffset; offset <= SelectedWeekOffset; offset++)
+        {
+            var weekStart = GetWeekStartForOffset(offset);
+            var weekSegments = GetWeekSegments(weekStart);
+            var weekTotal = CalculateWeeklyNetDuration(weekSegments, settings);
+            totals.Add(weekTotal.TotalMinutes);
+
+            WeeklyTrendPoints.Add(new WeeklyTrendPointItemViewModel
+            {
+                WeekLabel = _localizer.Format("Analytics.WeekShort", ISOWeek.GetWeekOfYear(weekStart)),
+                RangeLabel = weekStart.ToString("dd.MM", _localizer.CurrentCulture),
+                NetWorkedText = FormatDuration(weekTotal)
+            });
+        }
+
+        WeeklyTrendPolylinePoints = BuildPolylinePoints(totals, Math.Max(60, settings.WeeklyDesiredHours * 60));
+    }
+
+    private TimeSpan CalculateWeeklyNetDuration(IEnumerable<WorkSegment> weekSegments, BookingSettings settings)
+    {
+        var dayGroups = weekSegments
+            .GroupBy(segment => segment.Start.ToLocalTime().Date)
+            .Select(group => _calculator.GetNetDuration(group, settings.BreakRules, CurrentTime, settings.CountStampedOutTimeAsBreak));
+
+        return dayGroups.Aggregate(TimeSpan.Zero, (current, value) => current + value);
+    }
+
+    private static string BuildPolylinePoints(IReadOnlyList<double> values, double referenceMaxMinutes)
+    {
+        if (values.Count == 0)
+        {
+            return string.Empty;
+        }
+
+        const double width = 480;
+        const double height = 120;
+        var maxValue = Math.Max(referenceMaxMinutes, values.Max());
+        var safeMax = Math.Max(1, maxValue);
+        var stepX = values.Count > 1 ? width / (values.Count - 1) : width;
+
+        var points = new StringBuilder();
+        for (var index = 0; index < values.Count; index++)
+        {
+            var x = index * stepX;
+            var y = height - ((Math.Max(0, values[index]) / safeMax) * height);
+            if (index > 0)
+            {
+                points.Append(' ');
+            }
+
+            points.Append(x.ToString("F2", CultureInfo.InvariantCulture));
+            points.Append(',');
+            points.Append(y.ToString("F2", CultureInfo.InvariantCulture));
+        }
+
+        return points.ToString();
+    }
+
+    private void RecalculateWeeklyAnalytics(
+        BookingSettings settings,
+        DateTime weekStart,
+        IReadOnlyDictionary<DateTime, List<WorkSegment>> dailySegments)
+    {
+        WeeklyDayAnalysisItems.Clear();
+
+        var dayTargetMinutes = Math.Max(0, settings.WeeklyDesiredHours) / 5d * 60d;
+        var safeTargetMinutes = Math.Max(dayTargetMinutes, 1d);
+
+        var workedDays = 0;
+        var workedTotal = TimeSpan.Zero;
+        var bestDayDate = default(DateTime);
+        var bestDayDuration = TimeSpan.Zero;
+        var longestBreak = TimeSpan.Zero;
+        var targetReachedDays = 0;
+
+        for (var dayIndex = 0; dayIndex < 7; dayIndex++)
+        {
+            var date = weekStart.AddDays(dayIndex);
+            dailySegments.TryGetValue(date, out var daySegmentsForDate);
+            daySegmentsForDate ??= [];
+
+            var dayNet = _calculator.GetNetDuration(daySegmentsForDate, settings.BreakRules, CurrentTime, settings.CountStampedOutTimeAsBreak);
+            var dayBreak = _calculator.GetStampedOutDuration(daySegmentsForDate);
+
+            if (dayNet > TimeSpan.Zero)
+            {
+                workedDays++;
+                workedTotal += dayNet;
+            }
+
+            if (dayNet > bestDayDuration)
+            {
+                bestDayDuration = dayNet;
+                bestDayDate = date;
+            }
+
+            if (dayBreak > longestBreak)
+            {
+                longestBreak = dayBreak;
+            }
+
+            var isWeekday = date.DayOfWeek is not DayOfWeek.Saturday and not DayOfWeek.Sunday;
+            if (isWeekday && dayTargetMinutes > 0 && dayNet.TotalMinutes >= dayTargetMinutes)
+            {
+                targetReachedDays++;
+            }
+
+            var difference = dayNet - TimeSpan.FromMinutes(dayTargetMinutes);
+            var differencePrefix = difference >= TimeSpan.Zero ? "+" : "-";
+            var absoluteDifference = TimeSpan.FromTicks(Math.Abs(difference.Ticks));
+
+            WeeklyDayAnalysisItems.Add(new WeeklyDayAnalysisItemViewModel
+            {
+                DayLabel = date.ToString("ddd", _localizer.CurrentCulture),
+                DateLabel = date.ToString("dd.MM", _localizer.CurrentCulture),
+                NetWorkedText = FormatDuration(dayNet),
+                DifferenceText = $"{differencePrefix}{FormatDuration(absoluteDifference)}",
+                NetMinutes = Math.Max(0, dayNet.TotalMinutes),
+                TargetMinutes = safeTargetMinutes
+            });
+        }
+
+        WeeklyAveragePerWorkedDayText = workedDays > 0
+            ? FormatDuration(TimeSpan.FromMinutes(workedTotal.TotalMinutes / workedDays))
+            : "00:00";
+
+        WeeklyBestDayText = bestDayDuration > TimeSpan.Zero
+            ? $"{bestDayDate.ToString("ddd dd.MM", _localizer.CurrentCulture)} ({FormatDuration(bestDayDuration)})"
+            : _localizer["Analytics.NotAvailable"];
+
+        WeeklyTargetReachedDaysText = $"{targetReachedDays} / 5";
+        WeeklyLongestBreakText = FormatDuration(longestBreak);
+        HasWeeklyAnalysisData = workedDays > 0;
+        ShowWeeklyNoData = !HasWeeklyAnalysisData;
     }
 
     private static string NormalizeComment(string? comment)
@@ -1186,6 +1439,17 @@ public partial class MainWindowViewModel : ViewModelBase
         OnPropertyChanged(nameof(WeeklyNetLabel));
         OnPropertyChanged(nameof(WeeklyDesiredLabel));
         OnPropertyChanged(nameof(WeeklyDifferenceLabel));
+        OnPropertyChanged(nameof(WeeklyAnalysisTitle));
+        OnPropertyChanged(nameof(WeeklyChartTitle));
+        OnPropertyChanged(nameof(WeeklyInsightsTitle));
+        OnPropertyChanged(nameof(WeeklyAveragePerWorkedDayLabel));
+        OnPropertyChanged(nameof(WeeklyBestDayLabel));
+        OnPropertyChanged(nameof(WeeklyTargetReachedDaysLabel));
+        OnPropertyChanged(nameof(WeeklyLongestBreakLabel));
+        OnPropertyChanged(nameof(WeeklyNoDataText));
+        OnPropertyChanged(nameof(PreviousWeekText));
+        OnPropertyChanged(nameof(NextWeekText));
+        OnPropertyChanged(nameof(WeeklyTrendTitle));
         OnPropertyChanged(nameof(CurrentDayLabel));
     }
 

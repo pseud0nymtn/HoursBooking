@@ -27,9 +27,10 @@ public class MainWindowIntegrationTests
 
         window.Show();
 
-        var clockIn = window.FindControl<Button>("ClockInButton");
-        var clockOut = window.FindControl<Button>("ClockOutButton");
-        var theme = window.FindControl<ComboBox>("ThemeComboBox");
+        var allControls = window.GetLogicalDescendants().ToList();
+        var clockIn = allControls.OfType<Button>().FirstOrDefault(control => control.Name == "ClockInButton");
+        var clockOut = allControls.OfType<Button>().FirstOrDefault(control => control.Name == "ClockOutButton");
+        var theme = allControls.OfType<ComboBox>().FirstOrDefault(control => control.Name == "ThemeComboBox");
         var checkBoxes = window.GetLogicalDescendants().OfType<CheckBox>().ToList();
 
         Assert.Multiple(() =>

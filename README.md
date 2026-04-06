@@ -12,12 +12,14 @@ It combines daily stamping workflows with weekly progress visibility, editable s
 - Show `Gross`, `Break deduction`, and `Net` worked time for today.
 - Compute the expected target reach time for the current day.
 - Track weekly totals and compare against a configurable weekly target (`Weekly desired hours`).
+- Open a dedicated `Analysis` tab with visual weekly charts and trend insights.
 - Add short comments to stamped segments (up to 280 characters).
 - Edit or remove individual segments, or clear the entire list.
-- Export all segments to CSV.
+- Export all segments to CSV using a save dialog (choose destination and filename).
 - Configure break deduction rules with multiple thresholds.
 - Optionally count stamped-out gaps toward mandatory break deduction.
 - Persist settings and segment history across restarts.
+- Prevent accidental double starts (single-instance behavior with restore/activate).
 - Support localized UI (`de`, `en`) and app themes (`System`, `Light`, `Dark`).
 
 ## Tech Stack
@@ -180,8 +182,23 @@ Generated local packaging artifacts (for example `flatpak/publish/`, `flatpak/*.
 
 - MVVM pattern with CommunityToolkit.Mvvm
 - Business logic isolated in `HoursBooking.Core`
-- UI and platform concerns isolated in `HoursBooking.App`
+- UI structured as modular tabs with dedicated views (`Booking`, `Analysis`, `Settings`)
+- View-model composition in progress to avoid an oversized main view model
 - Unit and integration test coverage with NUnit
+
+## Test Coverage Status
+
+Current automated tests include:
+
+- Core calculation tests (`HoursBooking.Tests/UnitTest1.cs`)
+- UI integration smoke tests (`HoursBooking.IntegrationTests/UnitTest1.cs`)
+- Weekly analysis view model tests (`HoursBooking.IntegrationTests/WeeklyAnalysisViewModelIntegrationTests.cs`)
+- Single-instance manager tests (`HoursBooking.Tests/AppSingleInstanceManagerTests.cs`)
+
+Current known gap:
+
+- Not every command and every branch in `MainWindowViewModel` has dedicated automated tests yet.
+- The current suite focuses on high-risk behavior (core calculations, UI boot path, analysis calculations, and single-instance activation).
 
 ## Next Ideas
 
