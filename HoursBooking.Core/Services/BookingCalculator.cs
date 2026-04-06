@@ -93,10 +93,11 @@ public sealed class BookingCalculator
             {
                 return new AlertState(
                     AlertLevel.Error,
-                    $"Maximalarbeitszeit (Netto) ueberschritten um {exceeded.TotalMinutes:F0} Minuten.");
+                    "Alert.MaxExceeded",
+                    exceeded.TotalMinutes);
             }
 
-            return new AlertState(AlertLevel.Error, "Maximalarbeitszeit (Netto) erreicht.");
+            return new AlertState(AlertLevel.Error, "Alert.MaxReached");
         }
 
         var remaining = max - netDuration;
@@ -106,20 +107,20 @@ public sealed class BookingCalculator
 
         if (remaining <= error)
         {
-            return new AlertState(AlertLevel.Error, $"Nur noch {remaining.TotalMinutes:F0} Minuten bis zur Maximalarbeitszeit (Netto).");
+            return new AlertState(AlertLevel.Error, "Alert.ErrorRemaining", remaining.TotalMinutes);
         }
 
         if (remaining <= warning)
         {
-            return new AlertState(AlertLevel.Warning, $"Achtung: noch {remaining.TotalMinutes:F0} Minuten Netto verfuegbar.");
+            return new AlertState(AlertLevel.Warning, "Alert.WarningRemaining", remaining.TotalMinutes);
         }
 
         if (remaining <= info)
         {
-            return new AlertState(AlertLevel.Info, $"Hinweis: noch {remaining.TotalMinutes:F0} Minuten Netto verfuegbar.");
+            return new AlertState(AlertLevel.Info, "Alert.InfoRemaining", remaining.TotalMinutes);
         }
 
-        return new AlertState(AlertLevel.None, "Keine Warnung.");
+        return new AlertState(AlertLevel.None, "Alert.NoWarning");
     }
 
     public DateTimeOffset GetTargetReachedAt(

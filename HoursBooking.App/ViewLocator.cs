@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
+using HoursBooking.App.Services;
 using HoursBooking.App.ViewModels;
 
 namespace HoursBooking.App;
@@ -14,6 +15,8 @@ namespace HoursBooking.App;
     Url = "https://docs.avaloniaui.net/docs/concepts/view-locator")]
 public class ViewLocator : IDataTemplate
 {
+    private static readonly LocalizationService Localization = new();
+
     public Control? Build(object? param)
     {
         if (param is null)
@@ -27,7 +30,7 @@ public class ViewLocator : IDataTemplate
             return (Control)Activator.CreateInstance(type)!;
         }
         
-        return new TextBlock { Text = "Not Found: " + name };
+        return new TextBlock { Text = string.Format(Localization.CurrentCulture, Localization["System.ViewNotFound"], name) };
     }
 
     public bool Match(object? data)

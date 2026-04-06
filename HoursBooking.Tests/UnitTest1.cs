@@ -55,7 +55,7 @@ public class BookingCalculatorTests
         Assert.Multiple(() =>
         {
             Assert.That(alert.Level, Is.EqualTo(AlertLevel.Error));
-            Assert.That(alert.Message, Does.Contain("ueberschritten"));
+            Assert.That(alert.MessageKey, Is.EqualTo("Alert.MaxExceeded"));
         });
     }
 
