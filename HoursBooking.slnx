@@ -3,4 +3,6 @@
   <Project Path="HoursBooking.Core/HoursBooking.Core.csproj" />
   <Project Path="HoursBooking.IntegrationTests/HoursBooking.IntegrationTests.csproj" />
   <Project Path="HoursBooking.Tests/HoursBooking.Tests.csproj" />
+  <Project Path="HoursBooking.Installer/HoursBooking.Installer.wixproj" />
+  <Project Path="HoursBooking.Installer.Nsis/HoursBooking.Installer.Nsis.csproj" />
 </Solution>

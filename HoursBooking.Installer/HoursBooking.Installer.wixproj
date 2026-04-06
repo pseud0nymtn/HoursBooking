@@ -1,0 +1,12 @@
+<Project Sdk="WixToolset.Sdk/5.0.2">
+  <PropertyGroup>
+    <OutputType>Package</OutputType>
+    <PublishDir>$(MSBuildThisFileDirectory)..\HoursBooking.App\bin\$(Configuration)\net10.0\win-x64\publish\</PublishDir>
+    <ProductVersion Condition="'$(ProductVersion)' == ''">1.0.0</ProductVersion>
+    <DefineConstants>PublishDir=$(PublishDir);ProductVersion=$(ProductVersion)</DefineConstants>
+  </PropertyGroup>
+
+  <Target Name="PublishAppForInstaller" BeforeTargets="Build">
+    <Exec Command="dotnet publish &quot;$(MSBuildThisFileDirectory)..\HoursBooking.App\HoursBooking.App.csproj&quot; -c $(Configuration) -r win-x64 --self-contained false -o &quot;$(PublishDir)&quot;" />
+  </Target>
+</Project>
