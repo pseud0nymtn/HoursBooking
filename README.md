@@ -1,150 +1,190 @@
 # HoursBooking
 
-HoursBooking ist eine Desktop-Anwendung auf Basis von Avalonia zur Erfassung von Arbeitszeiten. Die App unterstuetzt Ein- und Ausstempeln, konfigurierbare Warnstufen fuer maximale Netto-Arbeitszeit, flexible Pausenregeln sowie die nachtraegliche Korrektur einzelner Arbeitsabschnitte.
+HoursBooking is a cross-platform desktop app (Avalonia) for tracking daily working time.
+It supports clock in/out workflows, configurable break rules, net-time alerts, and inline correction of work segments.
 
-## Funktionsumfang
+> [!NOTE]
+> This project's source code was created with AI assistance.
 
-- Ein- und Ausstempeln mit Live-Aktualisierung der Tageswerte
-- Anzeige von Bruttozeit, Pausenabzug und Netto-Arbeitszeit
-- Warnstufen `Info`, `Warning` und `Error` bei Annaeherung an die maximale Netto-Arbeitszeit
-- Zusaetzliche Meldung bei Erreichen oder Ueberschreiten der maximalen Netto-Arbeitszeit
-- Konfigurierbare Wunscharbeitszeit mit Anzeige, bis zu welcher Uhrzeit gearbeitet werden muss
-- Frei definierbare Pausenregeln mit beliebig vielen Stufen
-- Optionale Anrechnung ausgestempelter Zeitluecken auf die erforderliche Pause
-- Nachtraegliche Bearbeitung von Ein- und Ausstempelzeiten einzelner Arbeitsabschnitte
-- Theme-Umschaltung zwischen `System`, `Light` und `Dark`
-- Persistente Speicherung der Einstellungen als JSON
-- Unit-Tests und Avalonia-Headless-Integrationstests mit NUnit
+## Highlights
 
-## Technologie-Stack
+- Live clock in/out tracking with continuously updated totals.
+- Gross, deducted break, and net worked time overview.
+- Configurable alert thresholds (`Info`, `Warning`, `Error`) near maximum net work time.
+- Desired work time target with estimated completion time.
+- Flexible break rules with multiple tiers.
+- Optional deduction of stamped-out gaps from required break time.
+- Inline editing for existing work segments.
+- Theme support: `System`, `Light`, `Dark`.
+- Localization-ready UI.
+- JSON settings persistence.
+
+## Tech Stack
 
 - .NET 10
 - Avalonia 11
 - CommunityToolkit.Mvvm
 - NUnit
 
-## Projektstruktur
+## Repository Layout
 
-- [HoursBooking.App](HoursBooking.App): Avalonia-Desktop-Anwendung, UI, ViewModels und Infrastruktur
-- [HoursBooking.Core](HoursBooking.Core): Fachlogik fuer Zeitberechnung, Warnungen und Pausenregeln
-- [HoursBooking.Tests](HoursBooking.Tests): Unit-Tests fuer die Kernlogik
-- [HoursBooking.IntegrationTests](HoursBooking.IntegrationTests): Headless-Integrationstests fuer UI und Interaktion
+| Path | Purpose |
+|---|---|
+| `HoursBooking.App` | Avalonia desktop app, UI, view models, app services |
+| `HoursBooking.Core` | Core business logic (calculation, rules, alerts) |
+| `HoursBooking.Tests` | Unit tests for core logic |
+| `HoursBooking.IntegrationTests` | Avalonia headless integration tests |
 
-## Voraussetzungen
+## Quick Start
 
-- Installiertes .NET 10 SDK
+### Prerequisites
 
-SDK-Version pruefen:
+- .NET 10 SDK
+
+Check your SDK version:
 
 ```bash
 dotnet --version
 ```
 
-## Anwendung starten
+### Run the Application
 
-Aus dem Repository-Root:
+From repository root:
 
 ```bash
 dotnet run --project HoursBooking.App/HoursBooking.App.csproj
 ```
 
-## Tests ausfuehren
-
-Alle Tests starten:
+### Run Tests
 
 ```bash
 dotnet test HoursBooking.slnx
 ```
 
-## Bedienung
+## Usage
 
-### Arbeitszeit buchen
+### Track Working Time
 
-1. Mit `Einstempeln` beginnt ein Arbeitsabschnitt.
-2. Mit `Ausstempeln` wird der aktuelle Abschnitt beendet.
-3. Mehrere Arbeitsabschnitte pro Tag sind moeglich.
-4. Im Bereich `Arbeitsabschnitte` koennen vorhandene Eintraege nachtraeglich bearbeitet werden.
+1. Click `Clock In` to start a segment.
+2. Click `Clock Out` to finish the active segment.
+3. Repeat as needed for multiple segments during the day.
+4. Use the `Work Segments` list to review and update entries.
 
-### Zeiten korrigieren
+### Edit Existing Segments
 
-- Einen Abschnitt ueber `Bearbeiten` auswaehlen
-- Start- und Endzeit im Format `HH:mm` anpassen
-- Mit `Uebernehmen` speichern
+1. Click `Edit` on a segment.
+2. Adjust start/end time.
+3. Click `Apply` to save.
 
-Die Anwendung verhindert dabei ungueltige oder ueberlappende Arbeitsabschnitte.
+The app prevents invalid and overlapping segment ranges.
 
-## Konfiguration
+## Configuration
 
-Die Anwendung bietet folgende Einstellungen in der UI:
+Configurable settings include:
 
-- Maximale Arbeitszeit Netto in Stunden
-- Wunscharbeitszeit Netto in Stunden
-- Restzeit-Schwellwerte fuer `Info`, `Warning` und `Error`
-- Beliebig viele Pausenregeln der Form:
-  `Wenn Arbeitszeit >= X Stunden, dann Y Stunden Pause abziehen`
-- Option `Ausgestempelte Zeiten auf Pausenpflicht anrechnen`
-- Theme-Auswahl `System`, `Light`, `Dark`
+- Maximum net working time (hours)
+- Desired net working time (hours)
+- Alert thresholds for `Info`, `Warning`, and `Error`
+- Custom break rules (`if worked >= X hours, deduct Y hours`)
+- Option to count stamped-out time toward mandatory breaks
+- Theme mode (`System`, `Light`, `Dark`)
 
-### Beispiel fuer Pausenregeln
+### Break Rule Example
 
-- Ab `0` Stunden: `0.25` Stunden Pause
-- Ab `6` Stunden: `0.75` Stunden Pause
+- Rule 1: from `0.0h` deduct `0.25h`
+- Rule 2: from `6.0h` deduct `0.75h`
 
-Bei aktivierter Anrechnung ausgestempelter Zeit gilt:
+If stamped-out gaps are counted and there is already `0.50h` gap time,
+only the remaining required break is deducted from net time.
 
-- Wenn zwischen zwei Arbeitsabschnitten bereits `0.5` Stunden ausgestempelt wurde
-- und laut Regel `0.75` Stunden Pause erforderlich sind
-- werden nur noch `0.25` Stunden zusaetzlich von der Nettozeit abgezogen
+## Persistence
 
-## Persistenz
+Settings are stored as JSON in the user profile.
 
-Die Einstellungen werden als JSON im Benutzerprofil gespeichert.
-
-Typischer Speicherort unter Linux:
+Typical Linux location:
 
 ```text
 ~/.config/HoursBooking/settings.json
 ```
 
-Hinweis: Der konkrete Pfad wird ueber `Environment.SpecialFolder.ApplicationData` bestimmt und kann je nach Umgebung leicht abweichen.
+Exact path depends on `Environment.SpecialFolder.ApplicationData`.
 
-## Berechnungslogik
+## Calculation Model
 
-### Netto-Arbeitszeit
-
-Die Netto-Arbeitszeit ergibt sich aus:
+Net worked time:
 
 ```text
-Brutto-Arbeitszeit - effektiver Pausenabzug
+Net = Gross - EffectiveBreakDeduction
 ```
 
-Der effektive Pausenabzug ist entweder:
+Effective break deduction is:
 
-- die laut Pausenregel erforderliche Pause
+- Required break from configured rules, or
+- Required break minus stamped-out gaps (if enabled)
 
-oder, wenn die entsprechende Option aktiv ist:
+Desired work time completion is computed dynamically and accounts for break-rule threshold jumps.
 
-- die erforderliche Pause minus bereits ausgestempelte Zeitluecken zwischen Arbeitsabschnitten
+## Flatpak (Linux)
 
-### Zielzeit fuer Wunscharbeitszeit
+You can build a Flatpak bundle locally without auto-installation.
 
-Die Anzeige `Wunscharbeitszeit erreicht um ca. HH:mm` wird auf Basis der aktuellen Nettozeit und der konfigurierten Pausenregeln berechnet. Dabei werden Spruenge in der Pausenlogik beruecksichtigt, zum Beispiel wenn ab einer bestimmten Arbeitszeit mehr Pause erforderlich wird.
+### Prerequisites
 
-## Design und Architektur
+- `flatpak`
+- `flatpak-builder`
+- `dotnet` SDK 10
+- `magick` (ImageMagick)
 
-- MVVM mit CommunityToolkit.Mvvm
-- Trennung von UI und Fachlogik
-- Theme-faehige Oberflaeche mit Light/Dark/System
-- Kernberechnungen in der Core-Bibliothek testbar isoliert gehalten
+Install runtime/sdk:
 
-## Bekannte Grenzen
+```bash
+flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+flatpak install -y flathub org.freedesktop.Platform//24.08 org.freedesktop.Sdk//24.08
+```
 
-- Aktuell werden Einstellungen persistent gespeichert, Arbeitsabschnitte selbst jedoch noch nicht dauerhaft ueber App-Neustarts hinweg archiviert
-- Die Anwendung arbeitet derzeit auf Tagesbasis ohne Historien- oder Reporting-Funktion
+### Build Bundle
 
-## Weiterfuehrende Ideen
+```bash
+./scripts/build-flatpak.sh
+```
 
-- Persistente Speicherung taeglicher Buchungen
-- Export nach CSV oder PDF
-- Wochen- und Monatsauswertung
-- Feiertags- und Sollzeitmodelle
+Output bundle:
+
+```text
+io.github.hoursbooking.HoursBooking.flatpak
+```
+
+Optional install:
+
+```bash
+flatpak install --user --bundle ./io.github.hoursbooking.HoursBooking.flatpak
+```
+
+Run:
+
+```bash
+flatpak run io.github.hoursbooking.HoursBooking
+```
+
+Tray note:
+Tray behavior in Flatpak relies on StatusNotifier over DBus. Depending on your desktop environment, a compatible tray/indicator host must be active.
+
+Generated local packaging artifacts (for example `flatpak/publish/`, `flatpak/*.png`, and `flatpak/io.github.hoursbooking.HoursBooking.svg`) are intentionally ignored by `.gitignore`.
+
+## Architecture
+
+- MVVM pattern with CommunityToolkit.Mvvm.
+- Clear separation between UI layer and business logic.
+- Testable core logic in `HoursBooking.Core`.
+
+## Current Limitations
+
+- Settings persist across restarts; time segments currently do not.
+- Focus is currently day-based tracking (no built-in historical reporting yet).
+
+## Roadmap Ideas
+
+- Persistent daily booking history
+- CSV/PDF export
+- Weekly and monthly summaries
+- Holiday and target-time models
