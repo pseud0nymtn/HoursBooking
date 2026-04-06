@@ -63,6 +63,8 @@ public partial class App : Application
             };
             desktop.MainWindow = _mainWindow;
 
+            Program.SingleInstanceManager?.StartListening(ActivateExistingInstance);
+
             _ = _mainWindowViewModel.InitializeAsync();
         }
 
@@ -176,6 +178,29 @@ public partial class App : Application
         _mainWindow.WindowState = WindowState.Normal;
         _mainWindow.Show();
         _mainWindow.Activate();
+    }
+
+    public void ActivateExistingInstance()
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (_mainWindow is null)
+            {
+                return;
+            }
+
+            if (!_mainWindow.IsVisible || !_mainWindow.ShowInTaskbar)
+            {
+                RestoreFromTray();
+                return;
+            }
+
+            _trayHintWindow?.Close();
+            _mainWindow.ShowInTaskbar = true;
+            _mainWindow.WindowState = WindowState.Normal;
+            _mainWindow.Show();
+            _mainWindow.Activate();
+        });
     }
 
     private void ExitFromTray()

@@ -1,0 +1,94 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:HoursBooking.App.ViewModels"
+             mc:Ignorable="d"
+             x:Class="HoursBooking.App.Views.SettingsView"
+             x:DataType="vm:SettingsViewModel">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Spacing="16" Margin="0,12,0,0">
+            <Border CornerRadius="24"
+                    Padding="18"
+                    Background="{DynamicResource SettingsCardOneBrush}"
+                    BorderBrush="{DynamicResource HairlineBrush}"
+                    BorderThickness="1"
+                    BoxShadow="0 12 30 0 #0E000000">
+                <StackPanel Spacing="10">
+                    <TextBlock Text="{Binding Owner.DisplaySettingsTitle}" FontSize="20" FontWeight="SemiBold"/>
+                    <TextBlock Text="{Binding Owner.ThemeLabel}"/>
+                    <ComboBox Name="ThemeComboBox" ItemsSource="{Binding Owner.ThemeOptions}" SelectedItem="{Binding Owner.SelectedThemeOption}" />
+
+                    <TextBlock Text="{Binding Owner.LanguageLabel}"/>
+                    <ComboBox ItemsSource="{Binding Owner.LanguageOptions}" SelectedItem="{Binding Owner.SelectedLanguageOption}" />
+
+                    <CheckBox Content="{Binding Owner.MinimizeToTrayOnCloseLabel}" IsChecked="{Binding Owner.MinimizeToTrayOnClose}"/>
+                    <TextBlock Text="{Binding Owner.TraySupportHintText}" FontSize="12" Foreground="{DynamicResource SubtleTextBrush}" TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+
+            <Border CornerRadius="24"
+                    Padding="18"
+                    Background="{DynamicResource SettingsCardTwoBrush}"
+                    BorderBrush="{DynamicResource HairlineBrush}"
+                    BorderThickness="1"
+                    BoxShadow="0 12 30 0 #0E000000">
+                <StackPanel Spacing="10">
+                    <TextBlock Text="{Binding Owner.AlertLevelsTitle}" FontSize="20" FontWeight="SemiBold"/>
+                    <TextBlock Text="{Binding Owner.MaxWorkHoursLabel}"/>
+                    <NumericUpDown Minimum="0.1" Maximum="24" Increment="0.25" Value="{Binding Owner.MaxWorkHours}"/>
+
+                    <TextBlock Text="{Binding Owner.DesiredWorkHoursLabel}"/>
+                    <NumericUpDown Minimum="0" Maximum="24" Increment="0.25" Value="{Binding Owner.DesiredWorkHours}"/>
+
+                    <TextBlock Text="{Binding Owner.WeeklyDesiredHoursLabel}"/>
+                    <NumericUpDown Minimum="0" Maximum="168" Increment="0.25" Value="{Binding Owner.WeeklyDesiredHours}"/>
+
+                    <CheckBox Content="{Binding Owner.CountStampedOutBreakLabel}" IsChecked="{Binding Owner.CountStampedOutTimeAsBreak}"/>
+
+                    <TextBlock Text="{Binding Owner.InfoThresholdLabel}"/>
+                    <NumericUpDown Minimum="0" Maximum="600" Increment="5" Value="{Binding Owner.InfoThresholdMinutes}"/>
+
+                    <TextBlock Text="{Binding Owner.WarningThresholdLabel}"/>
+                    <NumericUpDown Minimum="0" Maximum="600" Increment="5" Value="{Binding Owner.WarningThresholdMinutes}"/>
+
+                    <TextBlock Text="{Binding Owner.ErrorThresholdLabel}"/>
+                    <NumericUpDown Minimum="0" Maximum="600" Increment="5" Value="{Binding Owner.ErrorThresholdMinutes}"/>
+                </StackPanel>
+            </Border>
+
+            <Border CornerRadius="24"
+                    Padding="18"
+                    Background="{DynamicResource SettingsCardThreeBrush}"
+                    BorderBrush="{DynamicResource HairlineBrush}"
+                    BorderThickness="1"
+                    BoxShadow="0 12 30 0 #0E000000">
+                <StackPanel Spacing="10">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <TextBlock Grid.Column="0" Text="{Binding Owner.BreakRulesTitle}" FontSize="20" FontWeight="SemiBold"/>
+                        <Button Grid.Column="1" Content="{Binding Owner.AddRuleText}" Classes="secondaryAction" Command="{Binding Owner.AddBreakRuleCommand}" />
+                    </Grid>
+
+                    <ItemsControl ItemsSource="{Binding Owner.BreakRules}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:BreakRuleViewModel">
+                                <Grid ColumnDefinitions="1.1*,1.1*,Auto" ColumnSpacing="8" Margin="0,2,0,2">
+                                    <NumericUpDown Grid.Column="0" Minimum="0" Maximum="24" Increment="0.25" Value="{Binding MinWorkedHours}"/>
+                                    <NumericUpDown Grid.Column="1" Minimum="0" Maximum="8" Increment="0.25" Value="{Binding DeductedBreakHours}"/>
+                                    <Button Grid.Column="2"
+                                            Content="{ReflectionBinding DataContext.Owner.RemoveText, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            Classes="ghostAction"
+                                            Command="{ReflectionBinding DataContext.Owner.RemoveBreakRuleCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding .}"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock Text="{Binding Owner.BreakRulesFormatText}" FontSize="12" Foreground="{DynamicResource SubtleTextBrush}" TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+
+            <Button Content="{Binding Owner.SaveSettingsText}" Classes="primaryAction" HorizontalAlignment="Right" Command="{Binding Owner.SaveSettingsCommand}"/>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

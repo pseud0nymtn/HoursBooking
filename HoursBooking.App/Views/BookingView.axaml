@@ -1,0 +1,252 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:HoursBooking.App.ViewModels"
+             mc:Ignorable="d"
+             x:Class="HoursBooking.App.Views.BookingView"
+             x:DataType="vm:BookingViewModel">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Spacing="14" Margin="0,10,0,0">
+            <Border CornerRadius="22"
+                    Padding="12"
+                    Background="{DynamicResource CardBackgroundBrush}"
+                    BorderBrush="{DynamicResource HairlineBrush}"
+                    BorderThickness="1"
+                    BoxShadow="0 10 24 0 #12000000"
+                    IsVisible="{Binding Owner.ShowMinimalClockMode}">
+                <StackPanel Spacing="10">
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                        <Border Grid.Column="0"
+                                CornerRadius="14"
+                                Padding="10"
+                                Background="{DynamicResource SecondarySurfaceBrush}"
+                                BorderBrush="{DynamicResource HairlineBrush}"
+                                BorderThickness="1">
+                            <StackPanel Spacing="2" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding Owner.CompactStartLabel}" FontSize="10" Foreground="{DynamicResource SubtleTextBrush}"/>
+                                <TextBlock Text="{Binding Owner.ActiveClockInText}" FontSize="20" FontWeight="SemiBold"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Column="1"
+                                CornerRadius="14"
+                                Padding="10"
+                                Background="{DynamicResource MetricThreeBrush}"
+                                BorderBrush="{DynamicResource HairlineBrush}"
+                                BorderThickness="1">
+                            <StackPanel Spacing="2" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding Owner.CompactNetLabel}" FontSize="10" Foreground="{DynamicResource SubtleTextBrush}"/>
+                                <TextBlock Text="{Binding Owner.NetWorkedText}" FontSize="20" FontWeight="Bold"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+
+                    <Grid ColumnDefinitions="Auto,Auto" ColumnSpacing="10" HorizontalAlignment="Center">
+                        <Button Width="52"
+                                Classes="iconRound primaryAction"
+                                Grid.Column="0"
+                                ToolTip.Tip="{Binding Owner.ClockInText}"
+                                Command="{Binding Owner.ClockInCommand}">
+                            <PathIcon Data="M 5 3 L 19 12 L 5 21 Z" Width="18" Height="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Button>
+
+                        <Button Width="52"
+                                Classes="iconRound secondaryAction"
+                                Grid.Column="1"
+                                ToolTip.Tip="{Binding Owner.ClockOutText}"
+                                Command="{Binding Owner.ClockOutCommand}">
+                            <PathIcon Data="M 5 5 H 19 V 19 H 5 Z" Width="16" Height="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Button>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <Border CornerRadius="24"
+                    Padding="18"
+                    Background="{DynamicResource CardBackgroundBrush}"
+                    BorderBrush="{DynamicResource HairlineBrush}"
+                    BorderThickness="1"
+                    BoxShadow="0 14 36 0 #10000000"
+                    IsVisible="{Binding Owner.ShowStandardBookingCard}">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="{Binding Owner.ClockSectionTitle}" FontSize="20" FontWeight="SemiBold" IsVisible="{Binding Owner.ShowBookingTitle}"/>
+
+                    <WrapPanel Orientation="Horizontal" ItemWidth="168">
+                        <Button Name="ClockInButton"
+                                Width="160"
+                                Height="36"
+                                Margin="0,0,8,8"
+                                Classes="primaryAction"
+                                Command="{Binding Owner.ClockInCommand}">
+                            <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                                <PathIcon Data="M 5 3 L 19 12 L 5 21 Z" Width="14" Height="14"/>
+                                <TextBlock Text="{Binding Owner.ClockInText}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Name="ClockOutButton"
+                                Width="160"
+                                Height="36"
+                                Margin="0,0,8,8"
+                                Classes="secondaryAction"
+                                Command="{Binding Owner.ClockOutCommand}">
+                            <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                                <PathIcon Data="M 5 5 H 19 V 19 H 5 Z" Width="13" Height="13"/>
+                                <TextBlock Text="{Binding Owner.ClockOutText}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                    </WrapPanel>
+
+                    <Border CornerRadius="16"
+                            Padding="12"
+                            Background="{DynamicResource MetricThreeBrush}"
+                            BorderBrush="{DynamicResource HairlineBrush}"
+                            BorderThickness="1"
+                            IsVisible="{Binding Owner.ShowClockInSummary}">
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                            <StackPanel Grid.Column="0" Spacing="2">
+                                <TextBlock Text="{Binding Owner.SummaryClockedInLabel}" FontSize="12" Foreground="{DynamicResource SubtleTextBrush}" FontWeight="SemiBold"/>
+                                <TextBlock Text="{Binding Owner.ActiveClockInText}" FontSize="22" FontWeight="Bold"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Spacing="2">
+                                <TextBlock Text="{Binding Owner.SummaryNetLabel}" FontSize="12" Foreground="{DynamicResource SubtleTextBrush}" FontWeight="SemiBold"/>
+                                <TextBlock Text="{Binding Owner.NetWorkedText}" FontSize="22" FontWeight="Bold"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10" IsVisible="{Binding Owner.ShowDetailedMetrics}">
+                        <Border Grid.Column="0" CornerRadius="16" Padding="12" Background="{DynamicResource MetricOneBrush}" BorderBrush="{DynamicResource HairlineBrush}" BorderThickness="1">
+                            <StackPanel Spacing="2">
+                                <TextBlock Text="{Binding Owner.GrossLabel}" FontSize="12" Foreground="{DynamicResource SubtleTextBrush}" FontWeight="SemiBold"/>
+                                <TextBlock Text="{Binding Owner.GrossWorkedText}" FontSize="22" FontWeight="Bold"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Column="1" CornerRadius="16" Padding="12" Background="{DynamicResource MetricTwoBrush}" BorderBrush="{DynamicResource HairlineBrush}" BorderThickness="1">
+                            <StackPanel Spacing="2">
+                                <TextBlock Text="{Binding Owner.BreakDeductionLabel}" FontSize="12" Foreground="{DynamicResource SubtleTextBrush}" FontWeight="SemiBold"/>
+                                <TextBlock Text="{Binding Owner.DeductedBreakText}" FontSize="22" FontWeight="Bold"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Column="2" CornerRadius="16" Padding="12" Background="{DynamicResource MetricThreeBrush}" BorderBrush="{DynamicResource HairlineBrush}" BorderThickness="1">
+                            <StackPanel Spacing="2">
+                                <TextBlock Text="{Binding Owner.NetLabel}" FontSize="12" Foreground="{DynamicResource SubtleTextBrush}" FontWeight="SemiBold"/>
+                                <TextBlock Text="{Binding Owner.NetWorkedText}" FontSize="22" FontWeight="Bold"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+
+                    <Border CornerRadius="16"
+                            Padding="12"
+                            Background="{Binding Owner.AlertBackground}"
+                            BorderBrush="{DynamicResource HairlineBrush}"
+                            BorderThickness="1"
+                            IsVisible="{Binding Owner.ShowAlertPanel}">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="{Binding Owner.AlertMessage}" FontSize="14" FontWeight="SemiBold" Foreground="{Binding Owner.AlertForeground}"/>
+                            <TextBlock Text="{Binding Owner.DesiredEndTimeText}" FontSize="13" Foreground="{Binding Owner.AlertForeground}"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Border>
+
+            <Border CornerRadius="24"
+                    Padding="18"
+                    Background="{DynamicResource CardMutedBackgroundBrush}"
+                    BorderBrush="{DynamicResource HairlineBrush}"
+                    BorderThickness="1"
+                    BoxShadow="0 12 30 0 #0E000000"
+                    IsVisible="{Binding Owner.ShowSegmentsSection}">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="{Binding Owner.WorkSegmentsTitle}" FontSize="19" FontWeight="SemiBold"/>
+
+                    <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8" Margin="0,0,0,2">
+                        <TextBox Grid.Column="0" Watermark="{Binding Owner.PendingCommentHint}" MaxLength="280" Text="{Binding Owner.PendingComment}"/>
+                        <Button Grid.Column="1" Content="{Binding Owner.ExportSegmentsText}" Classes="secondaryAction" Command="{Binding Owner.ExportSegmentsCommand}"/>
+                        <Button Grid.Column="2" Content="{Binding Owner.ClearSegmentsText}" Classes="ghostAction" Command="{Binding Owner.ClearAllSegmentsCommand}"/>
+                    </Grid>
+                    <TextBlock Text="{Binding Owner.PendingCommentLabel}" Foreground="{DynamicResource SubtleTextBrush}" FontSize="12"/>
+
+                    <Grid ColumnDefinitions="*,*,*,1.6*,Auto" ColumnSpacing="8" Margin="0,0,0,4" IsVisible="{Binding Owner.ShowSegmentTableLayout}">
+                        <TextBlock Grid.Column="0" Text="{Binding Owner.StartLabel}" FontWeight="SemiBold" Foreground="{DynamicResource SubtleTextBrush}"/>
+                        <TextBlock Grid.Column="1" Text="{Binding Owner.EndLabel}" FontWeight="SemiBold" Foreground="{DynamicResource SubtleTextBrush}"/>
+                        <TextBlock Grid.Column="2" Text="{Binding Owner.DurationLabel}" FontWeight="SemiBold" Foreground="{DynamicResource SubtleTextBrush}"/>
+                        <TextBlock Grid.Column="3" Text="{Binding Owner.CommentLabel}" FontWeight="SemiBold" Foreground="{DynamicResource SubtleTextBrush}"/>
+                        <TextBlock Grid.Column="4" Text="{Binding Owner.ActionLabel}" FontWeight="SemiBold" Foreground="{DynamicResource SubtleTextBrush}"/>
+                    </Grid>
+                    <ItemsControl ItemsSource="{Binding Owner.Segments}" IsVisible="{Binding Owner.ShowSegmentTableLayout}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:WorkSegmentItemViewModel">
+                                <Border CornerRadius="16" Padding="10" Margin="0,4,0,0" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource HairlineBrush}" BorderThickness="1">
+                                    <Grid ColumnDefinitions="*,*,*,1.6*,Auto" ColumnSpacing="8">
+                                        <TextBlock Grid.Column="0" VerticalAlignment="Center" Text="{Binding Start}" IsVisible="{Binding IsNotEditing}"/>
+                                        <TimePicker Grid.Column="0" SelectedTime="{Binding EditableStartTime}" IsVisible="{Binding IsEditing}"/>
+                                        <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding End}" IsVisible="{Binding IsNotEditing}"/>
+                                        <TimePicker Grid.Column="1" SelectedTime="{Binding EditableEndTime}" IsVisible="{Binding IsEditing}"/>
+                                        <TextBlock Grid.Column="2" VerticalAlignment="Center" Text="{Binding Duration}"/>
+                                        <TextBlock Grid.Column="3" VerticalAlignment="Center" Text="{Binding Comment}" TextWrapping="Wrap" IsVisible="{Binding IsNotEditing}"/>
+                                        <TextBox Grid.Column="3" Text="{Binding EditableComment}" MaxLength="280" IsVisible="{Binding IsEditing}"/>
+                                        <StackPanel Grid.Column="4" Orientation="Horizontal" Spacing="6">
+                                            <Button Content="{ReflectionBinding DataContext.Owner.EditText, RelativeSource={RelativeSource AncestorType=UserControl}}" Classes="secondaryAction" IsVisible="{Binding IsNotEditing}" Command="{ReflectionBinding DataContext.Owner.EditSegmentCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding .}"/>
+                                            <Button Content="{ReflectionBinding DataContext.Owner.ApplyText, RelativeSource={RelativeSource AncestorType=UserControl}}" Classes="primaryAction" IsVisible="{Binding IsEditing}" Command="{ReflectionBinding DataContext.Owner.ApplySegmentEditCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding .}"/>
+                                            <Button Content="{ReflectionBinding DataContext.Owner.CancelText, RelativeSource={RelativeSource AncestorType=UserControl}}" Classes="ghostAction" IsVisible="{Binding IsEditing}" Command="{ReflectionBinding DataContext.Owner.CancelSegmentEditCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding .}"/>
+                                            <Button Content="{ReflectionBinding DataContext.Owner.RemoveText, RelativeSource={RelativeSource AncestorType=UserControl}}" Classes="ghostAction" IsVisible="{Binding IsNotEditing}" Command="{ReflectionBinding DataContext.Owner.RemoveSegmentCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding .}"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <ItemsControl ItemsSource="{Binding Owner.Segments}" IsVisible="{Binding Owner.ShowSegmentCardLayout}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:WorkSegmentItemViewModel">
+                                <Border CornerRadius="18" Padding="12" Margin="0,4,0,0" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource HairlineBrush}" BorderThickness="1">
+                                    <StackPanel Spacing="10">
+                                        <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                                            <StackPanel Grid.Column="0" Spacing="4">
+                                                <TextBlock Text="{ReflectionBinding DataContext.Owner.StartLabel, RelativeSource={RelativeSource AncestorType=UserControl}}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource SubtleTextBrush}"/>
+                                                <TextBlock Text="{Binding Start}" FontSize="18" FontWeight="SemiBold" IsVisible="{Binding IsNotEditing}"/>
+                                                <TimePicker SelectedTime="{Binding EditableStartTime}" IsVisible="{Binding IsEditing}"/>
+                                            </StackPanel>
+
+                                            <StackPanel Grid.Column="1" Spacing="4">
+                                                <TextBlock Text="{ReflectionBinding DataContext.Owner.EndLabel, RelativeSource={RelativeSource AncestorType=UserControl}}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource SubtleTextBrush}"/>
+                                                <TextBlock Text="{Binding End}" FontSize="18" FontWeight="SemiBold" IsVisible="{Binding IsNotEditing}"/>
+                                                <TimePicker SelectedTime="{Binding EditableEndTime}" IsVisible="{Binding IsEditing}"/>
+                                            </StackPanel>
+                                        </Grid>
+
+                                        <Border CornerRadius="14" Padding="10" Background="{DynamicResource SecondarySurfaceBrush}">
+                                            <StackPanel Spacing="2">
+                                                <TextBlock Text="{ReflectionBinding DataContext.Owner.CardDurationLabel, RelativeSource={RelativeSource AncestorType=UserControl}}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource SubtleTextBrush}"/>
+                                                <TextBlock Text="{Binding Duration}" FontSize="20" FontWeight="Bold"/>
+                                            </StackPanel>
+                                        </Border>
+
+                                        <StackPanel Spacing="4">
+                                            <TextBlock Text="{ReflectionBinding DataContext.Owner.CommentLabel, RelativeSource={RelativeSource AncestorType=UserControl}}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource SubtleTextBrush}"/>
+                                            <TextBlock Text="{Binding Comment}" TextWrapping="Wrap" IsVisible="{Binding IsNotEditing}"/>
+                                            <TextBox Text="{Binding EditableComment}" MaxLength="280" IsVisible="{Binding IsEditing}"/>
+                                        </StackPanel>
+
+                                        <WrapPanel Orientation="Horizontal">
+                                            <Button Content="{ReflectionBinding DataContext.Owner.EditText, RelativeSource={RelativeSource AncestorType=UserControl}}" Classes="secondaryAction" Margin="0,0,8,8" IsVisible="{Binding IsNotEditing}" Command="{ReflectionBinding DataContext.Owner.EditSegmentCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding .}"/>
+                                            <Button Content="{ReflectionBinding DataContext.Owner.ApplyText, RelativeSource={RelativeSource AncestorType=UserControl}}" Classes="primaryAction" Margin="0,0,8,8" IsVisible="{Binding IsEditing}" Command="{ReflectionBinding DataContext.Owner.ApplySegmentEditCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding .}"/>
+                                            <Button Content="{ReflectionBinding DataContext.Owner.CancelText, RelativeSource={RelativeSource AncestorType=UserControl}}" Classes="ghostAction" Margin="0,0,8,8" IsVisible="{Binding IsEditing}" Command="{ReflectionBinding DataContext.Owner.CancelSegmentEditCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding .}"/>
+                                            <Button Content="{ReflectionBinding DataContext.Owner.RemoveText, RelativeSource={RelativeSource AncestorType=UserControl}}" Classes="ghostAction" Margin="0,0,8,8" IsVisible="{Binding IsNotEditing}" Command="{ReflectionBinding DataContext.Owner.RemoveSegmentCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding .}"/>
+                                        </WrapPanel>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <TextBlock Text="{Binding Owner.SegmentEditMessage}" Foreground="{DynamicResource SubtleTextBrush}" TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

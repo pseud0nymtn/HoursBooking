@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\HoursBooking.Core\HoursBooking.Core.csproj" />
+    <ProjectReference Include="..\HoursBooking.App\HoursBooking.App.csproj" />
   </ItemGroup>
 
 </Project>
