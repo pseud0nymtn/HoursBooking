@@ -137,6 +137,18 @@ public partial class MainWindowViewModel : ViewModelBase
     private bool showBookingTitle = true;
 
     [ObservableProperty]
+    private bool showMinimalClockMode;
+
+    [ObservableProperty]
+    private bool showStandardBookingCard = true;
+
+    [ObservableProperty]
+    private bool showSegmentTableLayout = true;
+
+    [ObservableProperty]
+    private bool showSegmentCardLayout;
+
+    [ObservableProperty]
     private string activeClockInText = "Nicht eingestempelt";
 
     public string CurrentDayLabel => CurrentTime.ToString("dddd, dd.MM.yyyy");
@@ -346,9 +358,11 @@ public partial class MainWindowViewModel : ViewModelBase
         GrossWorkedText = FormatDuration(gross);
         DeductedBreakText = FormatDuration(deductedBreak);
         NetWorkedText = FormatDuration(net);
-        ActiveClockInText = _segments.Count == 0
-            ? "Noch kein Start"
-            : _segments.MinBy(segment => segment.Start)?.Start.ToString("HH:mm") ?? "Noch kein Start";
+        ActiveClockInText = _activeSegment is not null
+            ? _activeSegment.Start.ToString("HH:mm")
+            : _segments.Count == 0
+                ? "Noch kein Start"
+                : _segments.MinBy(segment => segment.Start)?.Start.ToString("HH:mm") ?? "Noch kein Start";
 
         var targetReachedAt = _calculator.GetTargetReachedAt(_segments, settings.BreakRules, settings.DesiredWorkHours, CurrentTime, settings.CountStampedOutTimeAsBreak);
         if (settings.DesiredWorkHours <= 0)
@@ -558,14 +572,18 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public void UpdateLayoutMode(double windowWidth)
     {
-        ShowSettingsTab = windowWidth >= 1120;
-        ShowSegmentsSection = windowWidth >= 900;
-        ShowDetailedMetrics = windowWidth >= 760;
-        ShowAlertPanel = windowWidth >= 840;
-        ShowClockInSummary = windowWidth < 760;
-        ShowWindowHeader = windowWidth >= 680;
-        ShowHeaderDate = windowWidth >= 860;
-        ShowHeaderClock = windowWidth >= 980;
-        ShowBookingTitle = windowWidth >= 620;
+        ShowMinimalClockMode = windowWidth < 620;
+        ShowStandardBookingCard = !ShowMinimalClockMode;
+        ShowSettingsTab = windowWidth >= 1240;
+        ShowSegmentsSection = windowWidth >= 780;
+        ShowSegmentTableLayout = windowWidth >= 1100;
+        ShowSegmentCardLayout = ShowSegmentsSection && !ShowSegmentTableLayout;
+        ShowDetailedMetrics = windowWidth >= 980;
+        ShowAlertPanel = windowWidth >= 860;
+        ShowClockInSummary = windowWidth < 980 && !ShowMinimalClockMode;
+        ShowWindowHeader = windowWidth >= 700;
+        ShowHeaderDate = windowWidth >= 820;
+        ShowHeaderClock = windowWidth >= 1040;
+        ShowBookingTitle = windowWidth >= 760;
     }
 }

@@ -19,21 +19,21 @@
 
     <ScrollViewer HorizontalScrollBarVisibility="Disabled"
                   VerticalScrollBarVisibility="Auto">
-        <Grid RowDefinitions="Auto,*" RowSpacing="6" Margin="20">
+        <Grid RowDefinitions="Auto,*" RowSpacing="8" Margin="16">
         <Border Grid.Row="0"
-                CornerRadius="20"
-                Padding="20"
-                Margin="0,0,0,16"
+                CornerRadius="18"
+                Padding="14"
+                Margin="0,0,0,12"
             Background="{DynamicResource HeaderBackgroundBrush}"
                 BorderBrush="{DynamicResource HairlineBrush}"
                 BorderThickness="1"
-                BoxShadow="0 16 32 0 #12000000"
+                BoxShadow="0 10 24 0 #10000000"
                 IsVisible="{Binding ShowWindowHeader}">
             <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" RowSpacing="8">
                 <TextBlock Grid.Row="0"
                            Grid.Column="0"
                            Text="Arbeitszeitbuchung"
-                           FontSize="28"
+                           FontSize="24"
                            FontWeight="SemiBold"
                            Foreground="{DynamicResource HeaderForegroundBrush}"/>
                 <TextBlock Grid.Row="1"
@@ -43,78 +43,153 @@
                            FontSize="15"
                            Foreground="{DynamicResource HeaderSecondaryForegroundBrush}"/>
 
-                <StackPanel Grid.Row="0"
-                            Grid.RowSpan="2"
-                            Grid.Column="1"
-                            IsVisible="{Binding ShowHeaderClock}"
-                            HorizontalAlignment="Right"
-                            VerticalAlignment="Center"
-                            Orientation="Horizontal"
-                            Spacing="14">
+                <Border Grid.Row="0"
+                        Grid.RowSpan="2"
+                        Grid.Column="1"
+                        IsVisible="{Binding ShowHeaderClock}"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        Padding="12,8"
+                        CornerRadius="14"
+                        Background="{DynamicResource SecondarySurfaceBrush}"
+                        BorderBrush="{DynamicResource HairlineBrush}"
+                        BorderThickness="1">
                     <TextBlock Text="{Binding CurrentTimeLabel}"
-                               FontSize="26"
+                               FontSize="22"
                                FontWeight="Bold"
                                Foreground="{DynamicResource HeaderForegroundBrush}"/>
-                </StackPanel>
+                </Border>
             </Grid>
         </Border>
 
         <TabControl x:Name="MainTabs" Grid.Row="1">
             <TabItem Header="Buchung">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <StackPanel Spacing="16" Margin="0,12,0,0">
-                        <Border CornerRadius="24"
-                                Padding="20"
+                    <StackPanel Spacing="14" Margin="0,10,0,0">
+                        <Border CornerRadius="28"
+                                Padding="18"
                                 Background="{DynamicResource CardBackgroundBrush}"
                                 BorderBrush="{DynamicResource HairlineBrush}"
                                 BorderThickness="1"
-                                BoxShadow="0 20 44 0 #12000000">
+                                BoxShadow="0 14 36 0 #12000000"
+                                IsVisible="{Binding ShowMinimalClockMode}">
                             <StackPanel Spacing="14">
+                                <TextBlock Text="Stempeluhr"
+                                           FontSize="20"
+                                           FontWeight="SemiBold"
+                                           HorizontalAlignment="Center"/>
+
+                                <Border CornerRadius="20"
+                                        Padding="14"
+                                        Background="{DynamicResource SecondarySurfaceBrush}">
+                                    <StackPanel Spacing="10">
+                                        <Border HorizontalAlignment="Center"
+                                                Padding="10,5"
+                                                CornerRadius="999"
+                                                Background="{DynamicResource CardBackgroundBrush}"
+                                                BorderBrush="{DynamicResource HairlineBrush}"
+                                                BorderThickness="1">
+                                            <TextBlock Text="Letzter Start"
+                                                       FontSize="11"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{DynamicResource SubtleTextBrush}"/>
+                                        </Border>
+                                        <StackPanel Spacing="0" HorizontalAlignment="Center">
+                                            <TextBlock Text="{Binding ActiveClockInText}"
+                                                       FontSize="30"
+                                                       FontWeight="Bold"
+                                                       HorizontalAlignment="Center"/>
+                                            <TextBlock Text="Netto heute"
+                                                       FontSize="11"
+                                                       Foreground="{DynamicResource SubtleTextBrush}"
+                                                       HorizontalAlignment="Center"/>
+                                        </StackPanel>
+
+                                        <Border CornerRadius="18"
+                                                Padding="14"
+                                                Background="{DynamicResource MetricThreeBrush}"
+                                                BorderBrush="{DynamicResource HairlineBrush}"
+                                                BorderThickness="1">
+                                            <StackPanel Spacing="0" HorizontalAlignment="Center">
+                                                <TextBlock Text="{Binding NetWorkedText}"
+                                                           FontSize="34"
+                                                           FontWeight="Bold"
+                                                           HorizontalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </StackPanel>
+                                </Border>
+
+                                <StackPanel Spacing="8">
+                                    <Button Content="Einstempeln"
+                                            Height="42"
+                                            Background="{DynamicResource AccentBrush}"
+                                            Foreground="{DynamicResource AccentForegroundBrush}"
+                                            BorderThickness="0"
+                                            Command="{Binding ClockInCommand}"/>
+                                    <Button Content="Ausstempeln"
+                                            Height="42"
+                                            Background="{DynamicResource SecondarySurfaceBrush}"
+                                            Command="{Binding ClockOutCommand}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <Border CornerRadius="24"
+                                Padding="18"
+                                Background="{DynamicResource CardBackgroundBrush}"
+                                BorderBrush="{DynamicResource HairlineBrush}"
+                                BorderThickness="1"
+                                BoxShadow="0 14 36 0 #10000000"
+                                IsVisible="{Binding ShowStandardBookingCard}">
+                            <StackPanel Spacing="12">
                                 <TextBlock Text="Buchung"
                                            FontSize="20"
                                            FontWeight="SemiBold"
                                            IsVisible="{Binding ShowBookingTitle}"/>
 
-                                <WrapPanel Orientation="Horizontal" ItemWidth="150">
+                                <WrapPanel Orientation="Horizontal" ItemWidth="140">
                                     <Button Name="ClockInButton"
                                             Content="Einstempeln"
-                                            Width="150"
-                                            Height="40"
-                                        Margin="0,0,10,10"
+                                            Width="140"
+                                            Height="36"
+                                            Margin="0,0,8,8"
                                             Background="{DynamicResource AccentBrush}"
                                             Foreground="{DynamicResource AccentForegroundBrush}"
                                             BorderThickness="0"
                                             Command="{Binding ClockInCommand}"/>
                                     <Button Name="ClockOutButton"
                                             Content="Ausstempeln"
-                                            Width="150"
-                                            Height="40"
-                                        Margin="0,0,10,10"
+                                            Width="140"
+                                            Height="36"
+                                            Margin="0,0,8,8"
                                             Background="{DynamicResource SecondarySurfaceBrush}"
                                             Command="{Binding ClockOutCommand}"/>
                                 </WrapPanel>
 
-                                <Border CornerRadius="10"
-                                        Padding="16"
+                                <Border CornerRadius="16"
+                                        Padding="12"
                                         Background="{DynamicResource MetricThreeBrush}"
                                         BorderBrush="{DynamicResource HairlineBrush}"
                                         BorderThickness="1"
                                         IsVisible="{Binding ShowClockInSummary}">
                                     <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
-                                        <StackPanel Grid.Column="0" Spacing="4">
+                                        <StackPanel Grid.Column="0" Spacing="2">
                                             <TextBlock Text="Eingestempelt"
+                                                       FontSize="12"
                                                        Foreground="{DynamicResource SubtleTextBrush}"
                                                        FontWeight="SemiBold"/>
                                             <TextBlock Text="{Binding ActiveClockInText}"
-                                                       FontSize="25"
+                                                       FontSize="22"
                                                        FontWeight="Bold"/>
                                         </StackPanel>
-                                        <StackPanel Grid.Column="1" Spacing="4">
+                                        <StackPanel Grid.Column="1" Spacing="2">
                                             <TextBlock Text="Netto"
+                                                       FontSize="12"
                                                        Foreground="{DynamicResource SubtleTextBrush}"
                                                        FontWeight="SemiBold"/>
                                             <TextBlock Text="{Binding NetWorkedText}"
-                                                       FontSize="25"
+                                                       FontSize="22"
                                                        FontWeight="Bold"/>
                                         </StackPanel>
                                     </Grid>
@@ -122,62 +197,64 @@
 
                                 <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10" IsVisible="{Binding ShowDetailedMetrics}">
                                     <Border Grid.Column="0"
-                                            CornerRadius="18"
-                                            Padding="14"
+                                            CornerRadius="16"
+                                            Padding="12"
                                             Background="{DynamicResource MetricOneBrush}"
                                             BorderBrush="{DynamicResource HairlineBrush}"
                                             BorderThickness="1">
-                                        <StackPanel Spacing="4">
+                                        <StackPanel Spacing="2">
                                             <TextBlock Text="Brutto"
+                                                       FontSize="12"
                                                        Foreground="{DynamicResource SubtleTextBrush}"
                                                        FontWeight="SemiBold"/>
-                                            <TextBlock Text="{Binding GrossWorkedText}" FontSize="25" FontWeight="Bold"/>
+                                            <TextBlock Text="{Binding GrossWorkedText}" FontSize="22" FontWeight="Bold"/>
                                         </StackPanel>
                                     </Border>
 
                                     <Border Grid.Column="1"
-                                            CornerRadius="18"
-                                            Padding="14"
+                                            CornerRadius="16"
+                                            Padding="12"
                                             Background="{DynamicResource MetricTwoBrush}"
                                             BorderBrush="{DynamicResource HairlineBrush}"
                                             BorderThickness="1">
-                                        <StackPanel Spacing="4">
+                                        <StackPanel Spacing="2">
                                             <TextBlock Text="Pause (Abzug)"
+                                                       FontSize="12"
                                                        Foreground="{DynamicResource SubtleTextBrush}"
                                                        FontWeight="SemiBold"/>
-                                            <TextBlock Text="{Binding DeductedBreakText}" FontSize="25" FontWeight="Bold"/>
+                                            <TextBlock Text="{Binding DeductedBreakText}" FontSize="22" FontWeight="Bold"/>
                                         </StackPanel>
                                     </Border>
 
                                     <Border Grid.Column="2"
-                                            CornerRadius="18"
-                                            Padding="14"
+                                            CornerRadius="16"
+                                            Padding="12"
                                             Background="{DynamicResource MetricThreeBrush}"
                                             BorderBrush="{DynamicResource HairlineBrush}"
                                             BorderThickness="1">
-                                        <StackPanel Spacing="4">
+                                        <StackPanel Spacing="2">
                                             <TextBlock Text="Netto"
+                                                       FontSize="12"
                                                        Foreground="{DynamicResource SubtleTextBrush}"
                                                        FontWeight="SemiBold"/>
-                                            <TextBlock Text="{Binding NetWorkedText}" FontSize="25" FontWeight="Bold"/>
+                                            <TextBlock Text="{Binding NetWorkedText}" FontSize="22" FontWeight="Bold"/>
                                         </StackPanel>
                                     </Border>
                                 </Grid>
 
-                                <Border CornerRadius="18"
-                                        Padding="14"
+                                <Border CornerRadius="16"
+                                        Padding="12"
                                         Background="{Binding AlertBackground}"
                                         BorderBrush="{DynamicResource HairlineBrush}"
                                         BorderThickness="1"
                                         IsVisible="{Binding ShowAlertPanel}">
-                                    <StackPanel Spacing="6">
+                                    <StackPanel Spacing="4">
                                         <TextBlock Text="{Binding AlertMessage}"
-                                                   FontSize="15"
+                                                   FontSize="14"
                                                    FontWeight="SemiBold"
                                                    Foreground="{Binding AlertForeground}"/>
                                         <TextBlock Text="{Binding DesiredEndTimeText}"
-                                                   FontSize="14"
-                                                   FontWeight="SemiBold"
+                                                   FontSize="13"
                                                    Foreground="{Binding AlertForeground}"/>
                                     </StackPanel>
                                 </Border>
@@ -185,27 +262,31 @@
                         </Border>
 
                         <Border CornerRadius="24"
-                                Padding="20"
+                                Padding="18"
                                 Background="{DynamicResource CardMutedBackgroundBrush}"
                                 BorderBrush="{DynamicResource HairlineBrush}"
                                 BorderThickness="1"
-                                BoxShadow="0 18 38 0 #10000000"
+                                BoxShadow="0 12 30 0 #0E000000"
                                 IsVisible="{Binding ShowSegmentsSection}">
-                            <StackPanel Spacing="10">
+                            <StackPanel Spacing="8">
                                 <TextBlock Text="Arbeitsabschnitte"
-                                           FontSize="20"
+                                           FontSize="19"
                                            FontWeight="SemiBold"/>
-                                <Grid ColumnDefinitions="*,*,*,Auto" ColumnSpacing="8" Margin="0,0,0,4">
+                                <Grid ColumnDefinitions="*,*,*,Auto"
+                                      ColumnSpacing="8"
+                                      Margin="0,0,0,4"
+                                      IsVisible="{Binding ShowSegmentTableLayout}">
                                     <TextBlock Grid.Column="0" Text="Start" FontWeight="SemiBold" Foreground="{DynamicResource SubtleTextBrush}"/>
                                     <TextBlock Grid.Column="1" Text="Ende" FontWeight="SemiBold" Foreground="{DynamicResource SubtleTextBrush}"/>
                                     <TextBlock Grid.Column="2" Text="Dauer" FontWeight="SemiBold" Foreground="{DynamicResource SubtleTextBrush}"/>
                                     <TextBlock Grid.Column="3" Text="Aktion" FontWeight="SemiBold" Foreground="{DynamicResource SubtleTextBrush}"/>
                                 </Grid>
-                                <ItemsControl ItemsSource="{Binding Segments}">
+                                <ItemsControl ItemsSource="{Binding Segments}"
+                                              IsVisible="{Binding ShowSegmentTableLayout}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate x:DataType="vm:WorkSegmentItemViewModel">
                                             <Border CornerRadius="16"
-                                                    Padding="12"
+                                                    Padding="10"
                                                     Margin="0,4,0,0"
                                                     Background="{DynamicResource CardBackgroundBrush}"
                                                     BorderBrush="{DynamicResource HairlineBrush}"
@@ -254,6 +335,85 @@
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
 
+                                <ItemsControl ItemsSource="{Binding Segments}"
+                                              IsVisible="{Binding ShowSegmentCardLayout}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:WorkSegmentItemViewModel">
+                                            <Border CornerRadius="18"
+                                                    Padding="12"
+                                                    Margin="0,4,0,0"
+                                                    Background="{DynamicResource CardBackgroundBrush}"
+                                                    BorderBrush="{DynamicResource HairlineBrush}"
+                                                    BorderThickness="1">
+                                                <StackPanel Spacing="10">
+                                                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                                                        <StackPanel Grid.Column="0" Spacing="4">
+                                                            <TextBlock Text="Start"
+                                                                       FontSize="12"
+                                                                       FontWeight="SemiBold"
+                                                                       Foreground="{DynamicResource SubtleTextBrush}"/>
+                                                            <TextBlock Text="{Binding Start}"
+                                                                       FontSize="18"
+                                                                       FontWeight="SemiBold"
+                                                                       IsVisible="{Binding IsNotEditing}"/>
+                                                            <TimePicker SelectedTime="{Binding EditableStartTime}"
+                                                                        IsVisible="{Binding IsEditing}"/>
+                                                        </StackPanel>
+
+                                                        <StackPanel Grid.Column="1" Spacing="4">
+                                                            <TextBlock Text="Ende"
+                                                                       FontSize="12"
+                                                                       FontWeight="SemiBold"
+                                                                       Foreground="{DynamicResource SubtleTextBrush}"/>
+                                                            <TextBlock Text="{Binding End}"
+                                                                       FontSize="18"
+                                                                       FontWeight="SemiBold"
+                                                                       IsVisible="{Binding IsNotEditing}"/>
+                                                            <TimePicker SelectedTime="{Binding EditableEndTime}"
+                                                                        IsVisible="{Binding IsEditing}"/>
+                                                        </StackPanel>
+                                                    </Grid>
+
+                                                    <Border CornerRadius="14"
+                                                            Padding="10"
+                                                            Background="{DynamicResource SecondarySurfaceBrush}">
+                                                        <StackPanel Spacing="2">
+                                                            <TextBlock Text="Dauer"
+                                                                       FontSize="12"
+                                                                       FontWeight="SemiBold"
+                                                                       Foreground="{DynamicResource SubtleTextBrush}"/>
+                                                            <TextBlock Text="{Binding Duration}"
+                                                                       FontSize="20"
+                                                                       FontWeight="Bold"/>
+                                                        </StackPanel>
+                                                    </Border>
+
+                                                    <WrapPanel Orientation="Horizontal">
+                                                        <Button Content="Bearbeiten"
+                                                                Margin="0,0,8,8"
+                                                                IsVisible="{Binding IsNotEditing}"
+                                                                Command="{ReflectionBinding DataContext.EditSegmentCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                CommandParameter="{Binding .}"/>
+                                                        <Button Content="Uebernehmen"
+                                                                Margin="0,0,8,8"
+                                                                IsVisible="{Binding IsEditing}"
+                                                                Background="{DynamicResource AccentBrush}"
+                                                                Foreground="{DynamicResource AccentForegroundBrush}"
+                                                                BorderThickness="0"
+                                                                Command="{ReflectionBinding DataContext.ApplySegmentEditCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                CommandParameter="{Binding .}"/>
+                                                        <Button Content="Abbrechen"
+                                                                Margin="0,0,8,8"
+                                                                IsVisible="{Binding IsEditing}"
+                                                                Command="{ReflectionBinding DataContext.CancelSegmentEditCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                CommandParameter="{Binding .}"/>
+                                                    </WrapPanel>
+                                                </StackPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
                                 <TextBlock Text="{Binding SegmentEditMessage}"
                                            Foreground="{DynamicResource SubtleTextBrush}"
                                            TextWrapping="Wrap"/>
@@ -267,11 +427,11 @@
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Spacing="16" Margin="0,12,0,0">
                         <Border CornerRadius="24"
-                                Padding="20"
+                                Padding="18"
                                 Background="{DynamicResource SettingsCardOneBrush}"
                                 BorderBrush="{DynamicResource HairlineBrush}"
                                 BorderThickness="1"
-                                BoxShadow="0 18 38 0 #10000000">
+                                BoxShadow="0 12 30 0 #0E000000">
                             <StackPanel Spacing="10">
                                 <TextBlock Text="Anzeige"
                                            FontSize="20"
@@ -284,11 +444,11 @@
                         </Border>
 
                         <Border CornerRadius="24"
-                                Padding="20"
+                            Padding="18"
                                 Background="{DynamicResource SettingsCardTwoBrush}"
                                 BorderBrush="{DynamicResource HairlineBrush}"
                                 BorderThickness="1"
-                                BoxShadow="0 18 38 0 #10000000">
+                            BoxShadow="0 12 30 0 #0E000000">
                             <StackPanel Spacing="10">
                                 <TextBlock Text="Warnstufen"
                                            FontSize="20"
@@ -314,11 +474,11 @@
                         </Border>
 
                         <Border CornerRadius="24"
-                            Padding="20"
+                            Padding="18"
                             Background="{DynamicResource SettingsCardThreeBrush}"
                             BorderBrush="{DynamicResource HairlineBrush}"
                             BorderThickness="1"
-                            BoxShadow="0 18 38 0 #10000000">
+                            BoxShadow="0 12 30 0 #0E000000">
                             <StackPanel Spacing="10">
                                 <Grid ColumnDefinitions="*,Auto">
                                     <TextBlock Grid.Column="0"

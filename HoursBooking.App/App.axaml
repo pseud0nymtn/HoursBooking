@@ -13,59 +13,59 @@
         <ResourceDictionary>
             <ResourceDictionary.ThemeDictionaries>
                 <ResourceDictionary x:Key="Light">
-                    <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#EFF2F6"/>
-                    <SolidColorBrush x:Key="WindowForegroundBrush" Color="#18212B"/>
+                    <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#ECEEF2"/>
+                    <SolidColorBrush x:Key="WindowForegroundBrush" Color="#1C1C1E"/>
 
-                    <SolidColorBrush x:Key="HeaderBackgroundBrush" Color="#F8FAFD"/>
-                    <SolidColorBrush x:Key="HeaderForegroundBrush" Color="#111827"/>
-                    <SolidColorBrush x:Key="HeaderSecondaryForegroundBrush" Color="#667281"/>
+                    <SolidColorBrush x:Key="HeaderBackgroundBrush" Color="#F5F5F7"/>
+                    <SolidColorBrush x:Key="HeaderForegroundBrush" Color="#1C1C1E"/>
+                    <SolidColorBrush x:Key="HeaderSecondaryForegroundBrush" Color="#6E6E73"/>
 
-                    <SolidColorBrush x:Key="CardBackgroundBrush" Color="#FCFDFF"/>
-                    <SolidColorBrush x:Key="CardMutedBackgroundBrush" Color="#F7F9FC"/>
-                    <SolidColorBrush x:Key="SecondarySurfaceBrush" Color="#F2F5F9"/>
+                    <SolidColorBrush x:Key="CardBackgroundBrush" Color="#FFFFFF"/>
+                    <SolidColorBrush x:Key="CardMutedBackgroundBrush" Color="#F5F5F7"/>
+                    <SolidColorBrush x:Key="SecondarySurfaceBrush" Color="#EEF0F4"/>
 
-                    <SolidColorBrush x:Key="MetricOneBrush" Color="#EAF2FF"/>
-                    <SolidColorBrush x:Key="MetricTwoBrush" Color="#EDF8F0"/>
-                    <SolidColorBrush x:Key="MetricThreeBrush" Color="#F4F1FF"/>
+                    <SolidColorBrush x:Key="MetricOneBrush" Color="#F7F9FC"/>
+                    <SolidColorBrush x:Key="MetricTwoBrush" Color="#F6FAF7"/>
+                    <SolidColorBrush x:Key="MetricThreeBrush" Color="#F7F5FC"/>
 
-                    <SolidColorBrush x:Key="SettingsCardOneBrush" Color="#F2F6FB"/>
-                    <SolidColorBrush x:Key="SettingsCardTwoBrush" Color="#F5F2FB"/>
-                    <SolidColorBrush x:Key="SettingsCardThreeBrush" Color="#FBF6EF"/>
+                    <SolidColorBrush x:Key="SettingsCardOneBrush" Color="#F8FAFC"/>
+                    <SolidColorBrush x:Key="SettingsCardTwoBrush" Color="#F8F7FC"/>
+                    <SolidColorBrush x:Key="SettingsCardThreeBrush" Color="#FBF8F3"/>
 
-                    <SolidColorBrush x:Key="SubtleTextBrush" Color="#5D6877"/>
-                    <SolidColorBrush x:Key="HairlineBrush" Color="#D7DEE7"/>
+                    <SolidColorBrush x:Key="SubtleTextBrush" Color="#6E6E73"/>
+                    <SolidColorBrush x:Key="HairlineBrush" Color="#DDDDE3"/>
                     <SolidColorBrush x:Key="ControlBackgroundBrush" Color="#FFFFFF"/>
-                    <SolidColorBrush x:Key="ControlBorderBrush" Color="#D9E0E8"/>
-                    <SolidColorBrush x:Key="ControlForegroundBrush" Color="#18212B"/>
+                    <SolidColorBrush x:Key="ControlBorderBrush" Color="#D6D6DC"/>
+                    <SolidColorBrush x:Key="ControlForegroundBrush" Color="#1C1C1E"/>
                     <SolidColorBrush x:Key="AccentBrush" Color="#0A84FF"/>
                     <SolidColorBrush x:Key="AccentForegroundBrush" Color="#FFFFFF"/>
                 </ResourceDictionary>
 
                 <ResourceDictionary x:Key="Dark">
-                    <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#17191D"/>
-                    <SolidColorBrush x:Key="WindowForegroundBrush" Color="#F5F7FA"/>
+                    <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#1C1C1E"/>
+                    <SolidColorBrush x:Key="WindowForegroundBrush" Color="#F5F5F7"/>
 
-                    <SolidColorBrush x:Key="HeaderBackgroundBrush" Color="#23262C"/>
-                    <SolidColorBrush x:Key="HeaderForegroundBrush" Color="#F5F7FA"/>
-                    <SolidColorBrush x:Key="HeaderSecondaryForegroundBrush" Color="#AAB4C0"/>
+                    <SolidColorBrush x:Key="HeaderBackgroundBrush" Color="#2C2C2E"/>
+                    <SolidColorBrush x:Key="HeaderForegroundBrush" Color="#F5F5F7"/>
+                    <SolidColorBrush x:Key="HeaderSecondaryForegroundBrush" Color="#A1A1A6"/>
 
-                    <SolidColorBrush x:Key="CardBackgroundBrush" Color="#22252B"/>
-                    <SolidColorBrush x:Key="CardMutedBackgroundBrush" Color="#272B31"/>
-                    <SolidColorBrush x:Key="SecondarySurfaceBrush" Color="#2C3138"/>
+                    <SolidColorBrush x:Key="CardBackgroundBrush" Color="#2C2C2E"/>
+                    <SolidColorBrush x:Key="CardMutedBackgroundBrush" Color="#242426"/>
+                    <SolidColorBrush x:Key="SecondarySurfaceBrush" Color="#36363A"/>
 
-                    <SolidColorBrush x:Key="MetricOneBrush" Color="#243146"/>
-                    <SolidColorBrush x:Key="MetricTwoBrush" Color="#21372B"/>
-                    <SolidColorBrush x:Key="MetricThreeBrush" Color="#31294A"/>
+                    <SolidColorBrush x:Key="MetricOneBrush" Color="#303844"/>
+                    <SolidColorBrush x:Key="MetricTwoBrush" Color="#2C3830"/>
+                    <SolidColorBrush x:Key="MetricThreeBrush" Color="#353142"/>
 
-                    <SolidColorBrush x:Key="SettingsCardOneBrush" Color="#242E39"/>
-                    <SolidColorBrush x:Key="SettingsCardTwoBrush" Color="#2B263A"/>
-                    <SolidColorBrush x:Key="SettingsCardThreeBrush" Color="#352D25"/>
+                    <SolidColorBrush x:Key="SettingsCardOneBrush" Color="#2E3339"/>
+                    <SolidColorBrush x:Key="SettingsCardTwoBrush" Color="#312F39"/>
+                    <SolidColorBrush x:Key="SettingsCardThreeBrush" Color="#37332D"/>
 
-                    <SolidColorBrush x:Key="SubtleTextBrush" Color="#AAB4C0"/>
-                    <SolidColorBrush x:Key="HairlineBrush" Color="#3A4049"/>
-                    <SolidColorBrush x:Key="ControlBackgroundBrush" Color="#2B2F36"/>
-                    <SolidColorBrush x:Key="ControlBorderBrush" Color="#3D444E"/>
-                    <SolidColorBrush x:Key="ControlForegroundBrush" Color="#F5F7FA"/>
+                    <SolidColorBrush x:Key="SubtleTextBrush" Color="#A1A1A6"/>
+                    <SolidColorBrush x:Key="HairlineBrush" Color="#424245"/>
+                    <SolidColorBrush x:Key="ControlBackgroundBrush" Color="#3A3A3C"/>
+                    <SolidColorBrush x:Key="ControlBorderBrush" Color="#4B4B4F"/>
+                    <SolidColorBrush x:Key="ControlForegroundBrush" Color="#F5F5F7"/>
                     <SolidColorBrush x:Key="AccentBrush" Color="#0A84FF"/>
                     <SolidColorBrush x:Key="AccentForegroundBrush" Color="#FFFFFF"/>
                 </ResourceDictionary>
@@ -84,8 +84,9 @@
             <Setter Property="Foreground" Value="{DynamicResource ControlForegroundBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource ControlBorderBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="12"/>
-            <Setter Property="Padding" Value="14,10"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="13,8"/>
+            <Setter Property="MinHeight" Value="34"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
         </Style>
         <Style Selector="Button:pointerover">
@@ -122,9 +123,14 @@
             <Setter Property="Background" Value="Transparent"/>
         </Style>
         <Style Selector="TabItem">
-            <Setter Property="Padding" Value="16,9"/>
-            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="14,7"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Margin" Value="0,0,6,0"/>
+            <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Foreground" Value="{DynamicResource SubtleTextBrush}"/>
+        </Style>
+        <Style Selector="TabItem:pointerover">
+            <Setter Property="Background" Value="{DynamicResource SecondarySurfaceBrush}"/>
         </Style>
         <Style Selector="TabItem:selected">
             <Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
